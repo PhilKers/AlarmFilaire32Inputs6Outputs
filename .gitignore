@@ -1,0 +1,7 @@
+firmware/build/
+voix/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
