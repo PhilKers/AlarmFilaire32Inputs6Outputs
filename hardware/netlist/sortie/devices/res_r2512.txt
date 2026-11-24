@@ -1,0 +1,5 @@
+(Device file for RES_R2512 - genere par gen_netlist.py)
+PACKAGE R2512
+CLASS DISCRETE
+PINCOUNT 2
+END

@@ -1,0 +1,5 @@
+(Device file for STM32H743BIT6 - genere par gen_netlist.py)
+PACKAGE LQFP208_28X28
+CLASS IC
+PINCOUNT 208
+END

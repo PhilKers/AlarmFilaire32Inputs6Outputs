@@ -1,0 +1,5 @@
+(Device file for A7670E - genere par gen_netlist.py)
+PACKAGE SIMCOM_A7670_LCC_LGA
+CLASS IC
+PINCOUNT 124
+END

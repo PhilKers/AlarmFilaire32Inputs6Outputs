@@ -1,0 +1,5 @@
+(Device file for BAV99 - genere par gen_netlist.py)
+PACKAGE SOT23
+CLASS DISCRETE
+PINCOUNT 3
+END

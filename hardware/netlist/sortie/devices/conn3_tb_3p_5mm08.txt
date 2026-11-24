@@ -1,0 +1,5 @@
+(Device file for CONN3_TB_3P_5MM08 - genere par gen_netlist.py)
+PACKAGE TB_3P_5MM08
+CLASS IO
+PINCOUNT 3
+END

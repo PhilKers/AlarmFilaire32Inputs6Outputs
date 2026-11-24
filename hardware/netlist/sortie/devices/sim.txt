@@ -1,0 +1,5 @@
+(Device file for SIM - genere par gen_netlist.py)
+PACKAGE SIM_NANO_HINGED
+CLASS IO
+PINCOUNT 6
+END

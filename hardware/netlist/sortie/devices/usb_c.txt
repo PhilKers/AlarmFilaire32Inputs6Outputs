@@ -1,0 +1,5 @@
+(Device file for USB_C - genere par gen_netlist.py)
+PACKAGE USB_C_16P_SMD
+CLASS IO
+PINCOUNT 17
+END

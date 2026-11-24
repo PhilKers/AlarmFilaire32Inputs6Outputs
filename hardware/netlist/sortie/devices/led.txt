@@ -1,0 +1,5 @@
+(Device file for LED - genere par gen_netlist.py)
+PACKAGE LED_3MM_THT
+CLASS DISCRETE
+PINCOUNT 2
+END

@@ -6,6 +6,12 @@ Les valeurs marquées « *datasheet* » sont à reprendre du schéma d'applicati
 du fabricant (régulateurs à découpage notamment) ; elles ne sont pas critiques
 pour l'architecture.
 
+> 📌 **La netlist fait foi.** Le circuit complet, broche par broche, est décrit
+> dans `hardware/netlist/gen_netlist.py` et exporté pour OrCAD dans
+> `hardware/netlist/sortie/` (voir `hardware/netlist/LISEZMOI.md`). Les repères
+> (U101, R402…) de la netlist et de `sortie/nomenclature.csv` remplacent ceux,
+> indicatifs, utilisés ci-dessous.
+
 > ⚠️ Ce document est un **schéma de référence** à saisir dans un outil de CAO
 > (KiCad conseillé). Il n'a pas encore été prototypé : prévoir une première
 > série de cartes de validation avant toute installation réelle.
@@ -24,7 +30,7 @@ pour l'architecture.
    │ BAT- ────────────────────┼──► J2.2 ─ GND                         │                        └─ C3 100 nF
    │                          │           │ R1 10 mΩ 1 % 2 W (shunt, Kelvin)
    │ AC OK (contact)  ────────┼──► J3.1   │
-   │ BAT LOW (contact) ───────┼──► J3.2   ├──► J2.3 ── F2 (7,5 A, porte-fusible auto) ──► Batterie +
+   │ BAT LOW (contact) ───────┼──► J3.2   ├──► J2.3 ──► câble ── F2 (7,5 A, porte-fusible auto AU PLUS PRÈS de la batterie) ──► Batterie +
    │ COM contacts ────────────┼──► J3.3 = GND        J2.4 ───────────────────────────────► Batterie −
    └──────────────────────────┘
                                     U2 INA226 (I2C4, adresse 0x40)
@@ -54,7 +60,7 @@ pour l'architecture.
 | VZONE (tirage des boucles) | U7 **TLV75533PDBV** | 25 mA | Dédié : un court-circuit sur les boucles ne perturbe pas l'ADC ; 10 µF + 100 nF |
 | +12V_LCD (rétroéclairage) | U8 **LM5176** (buck-boost 4 interrupteurs) | 1,5 A | 12,0 V régulés quelle que soit VIN (10…14,4 V) ; composants *datasheet / WEBENCH* |
 | +3V3_LCD | U9 **TPS22918** (interrupteur de charge) | 0,6 A | ON ← PC7 (LCD_PWR_EN) ; démarrage progressif CT = 1 nF |
-| +12V_AUX (détecteurs) | Q2 **AO4407A** (P-MOS) + Q3 MMBT3904 | 1 A | Grille : 10 kΩ vers VIN, collecteur Q3 → grille via 4,7 kΩ ; base Q3 ← PG6 via 10 kΩ ; **PTC F3 1,1 A** (MF-MSMF110) ; TVS D2 SMBJ16A sur la borne |
+| +12V_AUX (détecteurs) | Q2 **FDS9435A** (P-MOS 30 V, SO-8) + Q3 MMBT3904 | 1 A | Grille : 10 kΩ vers VIN, collecteur Q3 → grille via 4,7 kΩ ; base Q3 ← PG6 via 10 kΩ ; **PTC F3 1,1 A** (MF-MSMF110) ; TVS D2 SMBJ16A sur la borne |
 | +12V_OUT (bus des sorties) | — (VIN) | 2 A | **PTC F4 2 A** (MF-MSMF200) puis une PTC 0,5 A par sortie |
 | +5V_OUT (bus des sorties) | — (+5V) | 1 A | **PTC F5 1,1 A** puis une PTC 0,5 A par sortie |
 
@@ -87,7 +93,7 @@ pour l'architecture.
      BT1 CR2032 ─┐        │                                       │
      +3V3 ───────┴─ D3 BAT54C ── VBAT (100 nF)                    │
                           │                                       │
-     U10 TPS3828-33 ──────┤ NRST  (100 nF, bouton RESET SW1)      │
+     U10 TPS3823-33 ─BAT54J┤ NRST  (100 nF, bouton RESET SW1)      │
         WDI ← PG7         │                                       │
         MR  ← SW1         │                                       │
                           │                                       │
@@ -101,7 +107,7 @@ pour l'architecture.
    * valeurs à ajuster selon la capacité de charge (CL) du quartz choisi.
 ```
 
-- Le TPS3828-33 (sortie **drain ouvert**, compatible avec la broche NRST bidirectionnelle) impose un rafraîchissement de WDI toutes les < 1,6 s.
+- Le TPS3823-33 a une sortie push-pull : une diode Schottky BAT54J (cathode côté TPS3823, anode côté NRST) lui permet seulement de tirer NRST à 0, sans entrer en conflit avec le reset interne du MCU. WDI doit être rafraîchi toutes les < 1,6 s.
 - Horloges : HSE 25 MHz → PLL1 480 MHz (CPU) ; PLL2R 200 MHz → FMC (SDCLK 100 MHz) ; PLL3R → LTDC 65 MHz ; PLL1Q → SDMMC 100 MHz.
 
 ---
@@ -151,12 +157,14 @@ Contient : configuration (2 copies, fin de mémoire), polices et images de l'IHM
 
  J7 (alimentation dalle) : VDD ← +3V3_LCD (U9), VLED ← +12V_LCD (U8),
                            BL_EN ← PC13, BL_PWM ← PA8 (TIM1_CH1, 20 kHz)
-                           (si la dalle attend 5 V sur BL_EN/PWM : U16 74LVC2T45)
+                           (si la dalle attend 5 V sur BL_EN/PWM : ajouter un 74LVC2T45)
 
  J8 FPC 6 broches dalle tactile (contrôleur GT911/GT928 sur la nappe) :
    1 VDD ← 3V3   2 GND   3 SCL ── PB8   4 SDA ── PB9   (2,2 kΩ vers 3V3)
    5 INT ── PB7 (10 kΩ vers 3V3)       6 RST ── PB4
 ```
+
+Correspondance LTDC → SN75LVDS83B (format **VESA 24 bits**) : D0-D4 = R0-R4, D6 = R5, D7 = G0, D8-D9 = G1-G2, D12-D14 = G3-G5, D15 = B0, D18-D22 = B1-B5, D24 = HSYNC, D25 = VSYNC, D26 = DE, D27 = R6, D5 = R7, D10-D11 = G6-G7, D16-D17 = B6-B7, D23 = GND. Pour une dalle **JEIDA**, échanger les bits de poids fort et faible (voir la datasheet de la dalle).
 
 Dalle conseillée : 10,4" XGA LVDS 1 canal 6/8 bits avec LED intégrées (ex. AUO G104XVN01.x ou équivalent Innolux/Kyocera), dalle tactile PCAP collée (optical bonding conseillé en cas de lumière forte). **Vérifier le brochage et le mapping JEIDA/VESA de la dalle retenue** avant de router J7.
 
@@ -224,12 +232,17 @@ Bornier : 32 bornes de zone + 16 bornes 0 V (une pour deux zones) + 4 bornes AUX
 **Chaîne de commande**
 
 ```
-          SPI1 SCK PA5 ──────────┬───────────────┬───────────────┐
- MOSI PB5 ──► SER IN U19 ─SER OUT─► SER IN U20 ─SER OUT─► SER IN U21 ─SER OUT──► MISO PA6 (relecture)
-          RCK  PG14 ─────────────┴───────────────┴───────────────┘
-          /G   PG3 (10 kΩ vers 3V3 : sorties bloquées au démarrage)
-          /SRCLR = 3V3 ;  VCC = 5V ; 100 nF par boîtier
- U19…U21 = TPIC6B595 (sorties DRAIN open-drain 150 mA, 50 V)
+  STM32 (3,3 V)          74AHCT125 (VCC 5 V, seuils TTL)        3 × TPIC6B595 (VCC 5 V)
+  SCK  PA5  ───────────► 1A → 1Y ──► SRCK (commun aux 3)
+  MOSI PB5  ───────────► 2A → 2Y ──► SER IN n°1 ─SER OUT─► SER IN n°2 ─SER OUT─► SER IN n°3
+  RCK  PG14 ─(10k↓)────► 3A → 3Y ──► RCK (commun aux 3)                               │
+  /G   PG3  ─(10k↑3V3)─► 4A → 4Y ──► /G  (commun aux 3, 10 kΩ vers 5 V)              SER OUT n°3
+  MISO PA6 ◄── 10 kΩ ──┬─────────────────────────────────────────────────────────────────┘
+                       20 kΩ → GND   (pont 5 V → 3,3 V pour la relecture)
+  /SRCLR = 5 V ; /OE du 74AHCT125 = GND ; 100 nF par boîtier
+
+  ⚠️ Le TPIC6B595 alimenté en 5 V exige VIH ≥ 0,85 × VCC = 4,25 V : les sorties
+  3,3 V du STM32 ne suffisent pas, d'où le tampon 74AHCT125 (VIH = 2 V).
 
  Bits : 0-5 K_MAIN1-6 | 6-11 K_SRC1-6 | 12-17 K_VSEL1-6 | 18-23 LED (Secteur, Marche, Alarme, Défaut, Réseau, GSM)
 ```
@@ -333,7 +346,6 @@ Format des fichiers : WAV PCM 16 bits mono 16 kHz. Le logiciel duplique l'échan
  J11 nano-SIM : SIM_VDD, SIM_DATA, SIM_CLK, SIM_RST — 22 Ω série + 33 pF vers GND,    
               U27 ESDA6V1W5 au plus près du support                                   
  J12 U.FL MAIN_ANT ── réseau en π (0 Ω + 2 × NC) ── piste 50 Ω coplanaire             
- J13 U.FL DIV_ANT  ── idem (diversité, optionnelle)                                   
  TP USB_VBUS / USB_DP / USB_DM du module sur pastilles de test (mise à jour firmware)
  NETLIGHT ──► LED via 1 kΩ (indication réseau)                                     
 ```
@@ -358,4 +370,4 @@ Antenne LTE externe au coffret métallique (passe-cloison SMA). Le régulateur 3
 | J10 | Ethernet RJ45 | — |
 | J4, J5 | SWD, USB-C maintenance | — |
 | J6, J11 | microSD, nano-SIM | — |
-| J12, J13 | Antennes 4G | U.FL |
+| J12 | Antenne 4G principale (l'A7670E n'a pas d'entrée de diversité) | U.FL |

@@ -1,0 +1,5 @@
+(Device file for LM5176PWP - genere par gen_netlist.py)
+PACKAGE HTSSOP28_PAD
+CLASS IC
+PINCOUNT 29
+END

@@ -1,0 +1,5 @@
+(Device file for SN75LVDS83B - genere par gen_netlist.py)
+PACKAGE TSSOP56
+CLASS IC
+PINCOUNT 56
+END

@@ -1,0 +1,5 @@
+(Device file for CONN2_UFL - genere par gen_netlist.py)
+PACKAGE UFL
+CLASS IO
+PINCOUNT 2
+END

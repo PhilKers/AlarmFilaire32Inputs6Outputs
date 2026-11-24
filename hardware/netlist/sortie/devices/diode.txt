@@ -1,0 +1,5 @@
+(Device file for DIODE - genere par gen_netlist.py)
+PACKAGE SOD123
+CLASS DISCRETE
+PINCOUNT 2
+END

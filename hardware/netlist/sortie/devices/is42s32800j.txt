@@ -1,0 +1,5 @@
+(Device file for IS42S32800J - genere par gen_netlist.py)
+PACKAGE TSOP2_86
+CLASS IC
+PINCOUNT 86
+END

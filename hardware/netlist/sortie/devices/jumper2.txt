@@ -1,0 +1,5 @@
+(Device file for JUMPER2 - genere par gen_netlist.py)
+PACKAGE PINHEAD_1X2_2MM54
+CLASS IO
+PINCOUNT 2
+END

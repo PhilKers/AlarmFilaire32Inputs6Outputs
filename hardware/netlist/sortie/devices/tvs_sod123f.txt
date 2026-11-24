@@ -1,0 +1,5 @@
+(Device file for TVS_SOD123F - genere par gen_netlist.py)
+PACKAGE SOD123F
+CLASS DISCRETE
+PINCOUNT 2
+END

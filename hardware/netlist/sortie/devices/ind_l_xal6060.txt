@@ -1,0 +1,5 @@
+(Device file for IND_L_XAL6060 - genere par gen_netlist.py)
+PACKAGE L_XAL6060
+CLASS DISCRETE
+PINCOUNT 2
+END

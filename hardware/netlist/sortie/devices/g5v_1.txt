@@ -1,0 +1,5 @@
+(Device file for G5V-1 - genere par gen_netlist.py)
+PACKAGE RELAY_G5V1
+CLASS IO
+PINCOUNT 6
+END

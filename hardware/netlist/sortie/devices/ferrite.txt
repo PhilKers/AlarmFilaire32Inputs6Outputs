@@ -1,0 +1,5 @@
+(Device file for FERRITE - genere par gen_netlist.py)
+PACKAGE R0603
+CLASS DISCRETE
+PINCOUNT 2
+END

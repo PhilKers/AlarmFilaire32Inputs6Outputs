@@ -1,0 +1,5 @@
+(Device file for CAPPOL_CPOL_D8_SMD - genere par gen_netlist.py)
+PACKAGE CPOL_D8_SMD
+CLASS DISCRETE
+PINCOUNT 2
+END

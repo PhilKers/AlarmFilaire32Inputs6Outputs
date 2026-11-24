@@ -1,0 +1,5 @@
+(Device file for HR911105A - genere par gen_netlist.py)
+PACKAGE RJ45_HR911105A
+CLASS IO
+PINCOUNT 13
+END

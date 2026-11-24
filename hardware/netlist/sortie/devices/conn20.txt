@@ -1,0 +1,5 @@
+(Device file for CONN20 - genere par gen_netlist.py)
+PACKAGE FFC_20P_1MM
+CLASS IO
+PINCOUNT 20
+END

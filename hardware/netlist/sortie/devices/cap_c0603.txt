@@ -1,0 +1,5 @@
+(Device file for CAP_C0603 - genere par gen_netlist.py)
+PACKAGE C0603
+CLASS DISCRETE
+PINCOUNT 2
+END

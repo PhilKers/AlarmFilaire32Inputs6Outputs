@@ -1,0 +1,5 @@
+(Device file for FUSE_FUSE_LF154 - genere par gen_netlist.py)
+PACKAGE FUSE_LF154
+CLASS DISCRETE
+PINCOUNT 2
+END

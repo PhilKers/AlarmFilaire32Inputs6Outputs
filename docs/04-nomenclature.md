@@ -1,5 +1,9 @@
 # 4. Nomenclature (BOM)
 
+> 📌 La nomenclature **complète et à jour** (587 composants, repères définitifs) est générée
+> avec la netlist : `hardware/netlist/sortie/nomenclature.csv`. Ce document en donne une
+> vue d'ensemble commentée.
+
 Références indicatives, disponibles chez les distributeurs usuels (Mouser, Farnell, DigiKey, LCSC).
 Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5R) ne sont listés que par quantités globales.
 
@@ -7,21 +11,21 @@ Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5
 
 | Repère | Référence | Description | Qté |
 |---|---|---|---|
-| U1 + Q1 | LM74700-Q1 + BUK9Y4R4-40E (ou équivalent N-MOS 40 V) | Diode idéale / protection inversion | 1 |
+| U1 + Q1 | LM74700-Q1 + IRF7403 (N-MOS 30 V, SO-8) | Diode idéale / protection inversion | 1 |
 | U2 | INA226AIDGSR | Mesure tension/courant batterie, I2C | 1 |
 | U3, U4 | LMR33630ADDA | Buck 36 V / 3 A (5 V et 3,8 V) | 2 |
 | U5 | TPS62130RGTR | Buck 3 A (3,3 V) | 1 |
 | U6, U7 | TLV75533PDBVR | LDO 3,3 V 500 mA (VDDA, VZONE) | 2 |
-| U8 | LM5176PWPR + 4 × N-MOS 40 V | Buck-boost 12 V rétroéclairage | 1 |
+| U8 | LM5176PWPR + 4 × IRF7403 | Buck-boost 12 V rétroéclairage (valeurs à valider par WEBENCH) | 1 |
 | U9 | TPS22918DBVR | Interrupteur de charge 3V3_LCD | 1 |
 | MCU | **STM32H743BIT6** | Cortex-M7 480 MHz, LQFP208 | 1 |
-| U10 | TPS3828-33DBVR | Superviseur + chien de garde (drain ouvert) | 1 |
+| U10 | TPS3823-33DBVR + BAT54J | Superviseur + chien de garde (Schottky vers NRST) | 1 |
 | U11 | USBLC6-2SC6 | ESD USB | 1 |
 | U12 | IS42S32800J-6TLI | SDRAM 32 Mo, 32 bits | 1 |
 | U13 | W25Q128JVSIQ | Flash QSPI 16 Mo | 1 |
 | U14 | 24AA025E48T-I/OT | EEPROM + adresse MAC EUI-48 | 1 |
 | U15 | SN75LVDS83BDGGR | Émetteur LVDS FlatLink | 1 |
-| U16 | 74LVC2T45DCUR | Adaptation niveau rétroéclairage (option) | 1 |
+| U16 | SN74AHCT125PWR | Tampon 3,3 V → 5 V vers la chaîne TPIC6B595 | 1 |
 | U17, U18 | CD74HC4067M96 | Multiplexeur analogique 16 voies | 2 |
 | U19…U21 | TPIC6B595DWR | Registre à décalage, sorties puissance | 3 |
 | U22 | MAX98357AETE+T | Ampli I2S classe D 3,2 W | 1 |
@@ -30,7 +34,7 @@ Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5
 | U25 | **SIMCom A7670E-LASE** | Module LTE Cat-1 / GSM (Europe) | 1 |
 | U26 | TXS0108EPWR | Traducteur de niveaux 8 voies | 1 |
 | U27 | ESDA6V1W5 | ESD carte SIM | 1 |
-| Q2 | AO4407A | P-MOS 30 V coupure AUX 12 V | 1 |
+| Q2 | FDS9435A | P-MOS 30 V coupure AUX 12 V | 1 |
 | Q3…Q5 | MMBT3904 | NPN commande | 3 |
 | D1, D2 | SMBJ16A | TVS entrée et AUX | 2 |
 | D3 | BAT54C | OU de diodes VBAT | 1 |
@@ -47,7 +51,7 @@ Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5
 | K_MAIN1…6 | Omron G5LE-1 DC12 | Relais inverseur 10 A | 6 |
 | K_SRC1…6, K_VSEL1…6 | Omron G5V-1 DC12 | Relais signal inverseur 1 A (150 mW) | 12 |
 | F1 | Littelfuse 0154005.DR | Fusible 5 A rapide + support | 1 |
-| F2 | Fusible auto 7,5 A + porte-fusible | Batterie | 1 |
+| F2 | Fusible auto 7,5 A + porte-fusible de câble | Batterie (dans le câble, près de la batterie) | 1 |
 | F3, F5 | Bourns MF-MSMF110-2 | PTC 1,1 A | 2 |
 | F4 | Bourns MF-MSMF200-2 | PTC 2 A | 1 |
 | F_O1…12 | Bourns MF-MSMF050-2 | PTC 0,5 A par sortie et par source | 12 |
@@ -58,7 +62,7 @@ Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5
 | J10 | HanRun HR911105A | RJ45 avec transformateur et LED | 1 |
 | J6 | Molex 503182-1852 | Support microSD | 1 |
 | J11 | Support nano-SIM à charnière (ex. Amphenol C707 10M006 512 2) | | 1 |
-| J12, J13 | U.FL (Hirose U.FL-R-SMT-1) + câbles vers SMA | Antennes | 2 |
+| J12 | U.FL (Hirose U.FL-R-SMT-1) + câble vers SMA | Antenne LTE | 1 |
 | J5 | USB-C 16 broches | Maintenance | 1 |
 | J4 | Embase 2 × 5 1,27 mm | SWD | 1 |
 | J14…J28 | Borniers débrochables pas 5 mm (Phoenix MSTB / équivalent) | Zones, sorties, alim | ~ 110 points |

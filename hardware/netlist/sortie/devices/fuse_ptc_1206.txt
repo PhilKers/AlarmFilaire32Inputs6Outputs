@@ -1,0 +1,5 @@
+(Device file for FUSE_PTC_1206 - genere par gen_netlist.py)
+PACKAGE PTC_1206
+CLASS DISCRETE
+PINCOUNT 2
+END

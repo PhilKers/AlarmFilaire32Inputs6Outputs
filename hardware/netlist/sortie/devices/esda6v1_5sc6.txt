@@ -1,0 +1,5 @@
+(Device file for ESDA6V1-5SC6 - genere par gen_netlist.py)
+PACKAGE SOT23_6
+CLASS IC
+PINCOUNT 6
+END

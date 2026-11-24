@@ -1,0 +1,5 @@
+(Device file for TPD4E05U06DQA - genere par gen_netlist.py)
+PACKAGE USON10
+CLASS IC
+PINCOUNT 10
+END

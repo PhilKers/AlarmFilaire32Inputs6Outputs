@@ -1,0 +1,5 @@
+(Device file for TPS62130 - genere par gen_netlist.py)
+PACKAGE VQFN16_3X3
+CLASS IC
+PINCOUNT 17
+END

@@ -1,0 +1,5 @@
+(Device file for INA226 - genere par gen_netlist.py)
+PACKAGE VSSOP10
+CLASS IC
+PINCOUNT 10
+END

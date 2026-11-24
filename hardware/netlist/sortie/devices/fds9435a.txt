@@ -1,0 +1,5 @@
+(Device file for FDS9435A - genere par gen_netlist.py)
+PACKAGE SOIC8
+CLASS DISCRETE
+PINCOUNT 8
+END

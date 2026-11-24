@@ -1,0 +1,5 @@
+(Device file for SCHOTTKY - genere par gen_netlist.py)
+PACKAGE SOD323
+CLASS DISCRETE
+PINCOUNT 2
+END

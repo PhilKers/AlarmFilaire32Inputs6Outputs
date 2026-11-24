@@ -1,0 +1,5 @@
+(Device file for LAN8742A - genere par gen_netlist.py)
+PACKAGE QFN24_4X4_PAD
+CLASS IC
+PINCOUNT 25
+END

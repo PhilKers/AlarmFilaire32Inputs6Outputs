@@ -17,7 +17,7 @@ flowchart TB
         T4[net_task] --> NA[net_api<br/>HTTP/JSON, SNTP]
         T5[ui_task] --> UI[ui_main<br/>LVGL]
         T6[audio_task] --> AU[bsp_audio<br/>WAV → SAI]
-        T7[supervisor 500 ms] --> WD[IWDG + TPS3828]
+        T7[supervisor 500 ms] --> WD[IWDG + TPS3823]
     end
     subgraph NOYAU["Noyau portable (core/)"]
         APP[alarm_app] --> ZI[zone_input<br/>classification, anti-rebond]
@@ -106,7 +106,7 @@ Le test unitaire `test_mode_switch` vérifie qu'à aucun moment K_VSEL ne bascul
 
 | Tâche | Priorité | Période | Pile | Rôle |
 |---|---|---|---|---|
-| supervisor | 7 | 500 ms | 1 Ko | Rafraîchit IWDG + TPS3828 si alarm et power sont vivantes |
+| supervisor | 7 | 500 ms | 1 Ko | Rafraîchit IWDG + TPS3823 si alarm et power sont vivantes |
 | alarm | 6 | 10 ms | 4 Ko | Acquisition des 32 boucles, autoprotection, moteur, relais (+ relecture) |
 | power | 4 | 1 s | 4 Ko | INA226, rails, liaison Ethernet, écriture du journal sur microSD |
 | audio | 4 | évén. | 4 Ko | Lecture des fragments WAV, DMA double tampon |

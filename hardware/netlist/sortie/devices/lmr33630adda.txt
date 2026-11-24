@@ -1,0 +1,5 @@
+(Device file for LMR33630ADDA - genere par gen_netlist.py)
+PACKAGE HSOIC8_PAD
+CLASS IC
+PINCOUNT 9
+END

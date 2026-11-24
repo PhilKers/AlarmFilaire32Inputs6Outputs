@@ -1,0 +1,5 @@
+(Device file for CD74HC4067 - genere par gen_netlist.py)
+PACKAGE SOIC24
+CLASS IC
+PINCOUNT 24
+END

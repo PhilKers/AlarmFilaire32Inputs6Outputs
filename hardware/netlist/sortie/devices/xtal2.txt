@@ -1,0 +1,5 @@
+(Device file for XTAL2 - genere par gen_netlist.py)
+PACKAGE XTAL_ABS07
+CLASS DISCRETE
+PINCOUNT 2
+END

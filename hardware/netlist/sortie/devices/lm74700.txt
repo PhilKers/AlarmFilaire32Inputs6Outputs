@@ -1,0 +1,5 @@
+(Device file for LM74700 - genere par gen_netlist.py)
+PACKAGE SOT23_6
+CLASS IC
+PINCOUNT 6
+END

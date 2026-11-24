@@ -1,0 +1,5 @@
+(Device file for TPIC6B595 - genere par gen_netlist.py)
+PACKAGE SOIC20W
+CLASS IC
+PINCOUNT 20
+END

@@ -1,0 +1,5 @@
+(Device file for SW_PUSH - genere par gen_netlist.py)
+PACKAGE SW_SMD_6X3_5
+CLASS IO
+PINCOUNT 2
+END

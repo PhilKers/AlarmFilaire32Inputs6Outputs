@@ -1,0 +1,5 @@
+(Device file for G5LE-1 - genere par gen_netlist.py)
+PACKAGE RELAY_G5LE
+CLASS IO
+PINCOUNT 5
+END

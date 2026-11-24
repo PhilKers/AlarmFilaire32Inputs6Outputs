@@ -1,0 +1,5 @@
+(Device file for SWD10 - genere par gen_netlist.py)
+PACKAGE HDR_2X5_1MM27
+CLASS IO
+PINCOUNT 10
+END

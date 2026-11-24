@@ -1,0 +1,5 @@
+(Device file for TPS3823-33DBV - genere par gen_netlist.py)
+PACKAGE SOT23_5
+CLASS IC
+PINCOUNT 5
+END

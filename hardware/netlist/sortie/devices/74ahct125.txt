@@ -1,0 +1,5 @@
+(Device file for 74AHCT125 - genere par gen_netlist.py)
+PACKAGE TSSOP14
+CLASS IC
+PINCOUNT 14
+END

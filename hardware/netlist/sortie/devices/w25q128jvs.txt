@@ -1,0 +1,5 @@
+(Device file for W25Q128JVS - genere par gen_netlist.py)
+PACKAGE SOIC8_208MIL
+CLASS IC
+PINCOUNT 8
+END

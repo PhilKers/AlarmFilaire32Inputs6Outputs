@@ -1,0 +1,5 @@
+(Device file for BATT_HOLDER - genere par gen_netlist.py)
+PACKAGE BAT_CR2032_SMD
+CLASS IO
+PINCOUNT 2
+END

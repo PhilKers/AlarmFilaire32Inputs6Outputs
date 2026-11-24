@@ -1,0 +1,5 @@
+(Device file for MAX98357A - genere par gen_netlist.py)
+PACKAGE TQFN16_3X3_PAD
+CLASS IC
+PINCOUNT 17
+END

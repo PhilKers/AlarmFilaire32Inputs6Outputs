@@ -1,0 +1,5 @@
+(Device file for TESTPOINT - genere par gen_netlist.py)
+PACKAGE TP_1MM
+CLASS IO
+PINCOUNT 1
+END

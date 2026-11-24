@@ -35,7 +35,7 @@ flowchart LR
     end
 
     LDO2 --> ZIN[32 boucles<br/>4k7 + EOL] --> MUX[2 × CD74HC4067] -->|ADC1/ADC2| CORE
-    CORE -->|SPI1| TPIC[3 × TPIC6B595] --> RLY[18 relais<br/>6 sorties × 3] --> BORN[Borniers<br/>C / NO / NF / 0V]
+    CORE -->|SPI1 via 74AHCT125| TPIC[3 × TPIC6B595] --> RLY[18 relais<br/>6 sorties × 3] --> BORN[Borniers<br/>C / NO / NF / 0V]
     TPIC --> LED[6 LED façade]
     CORE -->|FMC 32 bits| SDRAM[SDRAM 32 Mo<br/>IS42S32800J]
     CORE -->|LTDC RGB888| LVDS[SN75LVDS83B] --> LCD[Dalle 10,4''<br/>1024×768]
@@ -47,14 +47,14 @@ flowchart LR
     CORE -->|USART3 + RTS/CTS| LS[TXS0108E<br/>3,3 ↔ 1,8 V] --> GSM[A7670E 4G] --> SIM[nano-SIM]
     B38 --> GSM
     CORE -->|I2C4| INA
-    CORE --- WDG[TPS3828<br/>chien de garde]
+    CORE --- WDG[TPS3823<br/>chien de garde]
 ```
 
 ## 1.3 Choix techniques et justification
 
 **Un seul microcontrôleur.** Le STM32H743 est suffisamment puissant pour gérer simultanément l'affichage XGA (LTDC + accélérateur DMA2D), la pile TCP/IP et la logique d'alarme. La sûreté de fonctionnement est assurée par :
 - une tâche d'alarme à la plus haute priorité applicative, indépendante de l'IHM ;
-- un chien de garde interne (IWDG) **et** un chien de garde externe (TPS3828) rafraîchis uniquement si les tâches critiques sont vivantes ;
+- un chien de garde interne (IWDG) **et** un chien de garde externe (TPS3823) rafraîchis uniquement si les tâches critiques sont vivantes ;
 - une chaîne de relais **relue** à chaque écriture (sortie série du dernier TPIC6B595 rebouclée sur MISO) ;
 - des relais au repos (sorties coupées, mode contact sec) tant que le logiciel n'a pas démarré (/G des TPIC6B595 tiré au niveau haut).
 

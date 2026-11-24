@@ -1,0 +1,5 @@
+(Device file for CAP_C1210 - genere par gen_netlist.py)
+PACKAGE C1210
+CLASS DISCRETE
+PINCOUNT 2
+END

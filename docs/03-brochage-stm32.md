@@ -127,7 +127,7 @@ alternée (AF) sont ceux du datasheet STM32H743 (DS12110).
 ## Broches libres (réserve)
 
 Toutes les broches des ports F, G, H, I, J, K sont utilisées. Restent libres :
-**PB12**, **PD3**, et **PC2 / PC3** (selon le boîtier, ces broches existent en variante
+**PB12**, **PD3**, **PG2** (FMC A12, inutile pour cette SDRAM), et **PC2_C / PC3_C** (selon le boîtier, ces broches existent en variante
 analogique `PC2_C / PC3_C` : à vérifier dans CubeMX avant de les employer).
 Le bus I2C4 est aussi ramené sur un connecteur d'extension J30 (3V3, GND, SCL,
 SDA) pour un futur clavier déporté ou lecteur de badges.

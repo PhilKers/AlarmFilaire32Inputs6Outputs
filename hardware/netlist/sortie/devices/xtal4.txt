@@ -1,0 +1,5 @@
+(Device file for XTAL4 - genere par gen_netlist.py)
+PACKAGE XTAL_3225_4P
+CLASS DISCRETE
+PINCOUNT 4
+END

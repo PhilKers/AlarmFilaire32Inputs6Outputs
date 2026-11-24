@@ -1,0 +1,5 @@
+(Device file for CONN4_HDR_1X4_2MM54 - genere par gen_netlist.py)
+PACKAGE HDR_1X4_2MM54
+CLASS IO
+PINCOUNT 4
+END

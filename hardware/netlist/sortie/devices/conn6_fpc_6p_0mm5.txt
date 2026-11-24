@@ -1,0 +1,5 @@
+(Device file for CONN6_FPC_6P_0MM5 - genere par gen_netlist.py)
+PACKAGE FPC_6P_0MM5
+CLASS IO
+PINCOUNT 6
+END

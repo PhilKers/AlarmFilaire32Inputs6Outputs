@@ -1,0 +1,5 @@
+(Device file for MICROSD - genere par gen_netlist.py)
+PACKAGE MICROSD_MOLEX_503182
+CLASS IO
+PINCOUNT 10
+END

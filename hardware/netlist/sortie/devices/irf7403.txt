@@ -1,0 +1,5 @@
+(Device file for IRF7403 - genere par gen_netlist.py)
+PACKAGE SOIC8
+CLASS DISCRETE
+PINCOUNT 8
+END
