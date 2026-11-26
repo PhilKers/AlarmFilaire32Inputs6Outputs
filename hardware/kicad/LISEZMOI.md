@@ -7,9 +7,10 @@ d'empreintes du projet.
 |---|---|
 | `alarme32/alarme32.kicad_pro` | Projet (à ouvrir dans KiCad), classes d'équipotentielles et règles de conception |
 | `alarme32/alarme32.kicad_sch` + 9 feuillets | Schéma hiérarchique |
-| `alarme32/alarme32.kicad_pcb` | Circuit imprimé 4 couches 300 × 210 mm, composants placés, **non routé** |
+| `alarme32/alarme32.kicad_pcb` | Circuit imprimé 4 couches 300 × 210 mm, composants placés, **routage partiel** (voir ci-dessous) |
 | `alarme32/alarme32.pretty/` + `fp-lib-table` | Les 64 empreintes utilisées (bibliothèque du projet, autonome) |
-| `alarme32/alarme32.dsn` | Export Specctra pour un essai d'autoroutage avec Freerouting |
+| `alarme32/alarme32.dsn` | Export Specctra de la carte (pour Freerouting) |
+| `alarme32_pcb_routage.pdf` | Vue des pistes (F.Cu, In2.Cu, B.Cu) |
 | `alarme32_schema.pdf` | Schéma imprimable (10 pages) |
 | `alarme32_pcb_placement.pdf` | Plan de placement imprimable (face composants) |
 
@@ -39,16 +40,28 @@ nom sont reliées sur tous les feuillets. Une croix bleue marque une broche volo
 - classes d'équipotentielles : `Puissance` (pistes 0,6 mm), `Relais` (1 mm, isolement 0,5 mm),
   `SDRAM` (0,15 mm), `LVDS_100R`.
 
-**À faire par vous (ou avec un routeur) : le routage des 499 liaisons.** Un routage automatique
-de qualité n'est pas réaliste sur cette carte : SDRAM 32 bits (longueurs appariées), paires LVDS
-100 Ω, piste d'antenne 50 Ω, courants forts des relais. Ordre conseillé :
-1. alimentations (régulateurs, inductances, condensateurs) et pistes larges des relais ;
-2. SDRAM ↔ MCU (FMC), puis LVDS et RMII Ethernet ;
-3. le reste des signaux ; un plan d'alimentation 3,3 V peut être ajouté sur In2.Cu.
+**Routage partiel automatique** (`route_auto.py`, Freerouting 1.9 + contrôles KiCad) :
+- **251 équipotentielles routées** (19,5 m de pistes) : toutes les entrées de zones, multiplexeurs,
+  commandes des relais, LED, I2C, UART, commandes du modem, surveillance, audio, et les contacts des
+  relais en pistes de 1 mm ; couches F.Cu, In2.Cu et B.Cu ;
+- **In1.Cu reste un plan de masse plein** (interdit aux pistes) ;
+- **250 vias de masse** posées automatiquement (pastille CMS → plan), chacune contrôlée avant pose ;
+- DRC KiCad : **aucune violation** (hors chevelu et avertissements de sérigraphie).
 
-Pour un premier jet automatique : ouvrez `alarme32.dsn` dans **Freerouting**
-(https://github.com/freerouting/freerouting), puis réimportez la session (`.ses`) dans KiCad
-(*Fichier → Importer → Session Specctra*). À reprendre à la main pour la SDRAM, le LVDS et l'antenne.
+**Reste à router à la main (826 liaisons en chevelu)** — volontairement, car un autorouteur les
+traiterait mal :
+1. **alimentations** (VIN, P5V, P3V3, P3V3A, VZONE, P3V8_GSM, P12V_*, VBAT…) en pistes larges ou
+   zones de cuivre (un plan 3,3 V peut être ajouté sur In2.Cu sous le MCU) ;
+2. **régulateurs à découpage** (nœuds SW, BOOT, FB, buck-boost LM5176) : boucles les plus courtes possible ;
+3. **SDRAM ↔ MCU** (FMC, ~ 60 liaisons, longueurs appariées ± 5 mm), **LVDS** (paires 100 Ω),
+   **RMII Ethernet**, quartz, USB, QSPI, microSD ;
+4. **antenne 4G** (piste 50 Ω coplanaire) et carte SIM ;
+5. **150 pastilles de masse** des zones denses (broches VSS du MCU, condensateurs serrés) : une via
+   chacune (touche V dans KiCad).
+
+Le style de Freerouting (diagonales, bus parallèles) est fonctionnel mais perfectible : n'hésitez
+pas à reprendre des pistes. Pour recommencer : `/usr/bin/python3 route_auto.py <freerouting.jar>`
+(repart de la carte sans pistes).
 
 **À vérifier avant fabrication :**
 - les points déjà listés pour la netlist (SN75LVDS83B, relais, connecteur de dalle, valeurs du LM5176) ;
@@ -64,15 +77,16 @@ Pour un premier jet automatique : ouvrez `alarme32.dsn` dans **Freerouting**
 python3 verif_schema.py           # schéma relu par KiCad == netlist de référence (broche par broche)
 /usr/bin/python3 verif_pcb.py     # PCB : net de chaque pastille, lien schéma <-> PCB, DRC KiCad
 ```
-État actuel : pastilles **OK**, lien schéma ↔ PCB **OK**, DRC : **aucune erreur** hors liaisons à
-router ; 40 avertissements de sérigraphie (textes qui se chevauchent, à retoucher).
+État actuel : pastilles **OK**, lien schéma ↔ PCB **OK**, DRC : **aucune erreur** hors 826 liaisons à
+router ; 38 avertissements de sérigraphie (textes qui se chevauchent, à retoucher).
 
 ## Régénérer
 
 ```bash
 python3 ../netlist/gen_netlist.py   # description du circuit -> netlist OrCAD
 python3 gen_schema.py               # -> schéma KiCad
-/usr/bin/python3 gen_pcb.py         # -> circuit imprimé (API Python de KiCad, « pcbnew »)
+/usr/bin/python3 gen_pcb.py         # -> circuit imprimé placé (API Python de KiCad, « pcbnew »)
+/usr/bin/python3 route_auto.py <freerouting.jar>   # -> routage partiel + vias de masse
 ```
 ⚠️ Relancer `gen_schema.py` ou `gen_pcb.py` **écrase** le schéma ou le PCB. Dès que vous commencez à
 modifier ou router dans KiCad, travaillez directement dans KiCad et ne relancez plus les générateurs.

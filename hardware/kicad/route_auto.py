@@ -46,9 +46,6 @@ def classe(net):
 
 
 def main():
-    if sys.argv[1] == "--poser-vias":
-        etape_vias_gnd(int(sys.argv[2]))
-        return
     if sys.argv[1] == "--vias-masse":
         vias_masse()
         return
@@ -183,31 +180,106 @@ def nettoyer(max_iter=5):
         print("Routage retiré (à faire à la main) :", ", ".join(sorted(rendues - {"GND"})))
 
 
-DIRECTIONS = [0, 90, -90, 180, 45, -45, 135, -135]
-
-
-def etape_vias_gnd(tour):
-    """Pose une via de masse (avec courte piste F.Cu) à côté de chaque pastille CMS GND
-    qui n'a encore ni piste ni via. La direction essayée change à chaque tour."""
+def vias_masse():
+    """Raccorde chaque pastille CMS de masse (F.Cu) au plan GND par une via 0,6/0,3 mm et une
+    courte piste de 0,4 mm. Chaque emplacement candidat (8 directions, 4 distances) est accepté
+    seulement s'il respecte l'isolement avec tout le cuivre des autres équipotentielles (toutes
+    couches pour la via, F.Cu pour la piste), les autres trous et le bord de carte."""
     import math
     board = pcbnew.LoadBoard(PCB)
     gnd = board.FindNet("GND")
-    pistes = [t for t in board.GetTracks() if t.GetNetname() == "GND"]
-    n = 0
+    mm = pcbnew.ToMM
+    # Obstacles : (x0, y0, x1, y1, net, sur_F, traversant, forme) en mm ; formes : ("rect",) ou ("seg", x1, y1, x2, y2, w)
+    obst = []
     for fp in board.GetFootprints():
-        centre = fp.GetPosition()
+        for pad in fp.Pads():
+            bb = pad.GetBoundingBox()
+            obst.append((mm(bb.GetLeft()), mm(bb.GetTop()), mm(bb.GetRight()), mm(bb.GetBottom()), pad.GetNetname(),
+                         pad.IsOnLayer(pcbnew.F_Cu), pad.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH),
+                         ("rect",)))
+    pistes_gnd = []
+    for t in board.GetTracks():
+        if t.GetClass() == "PCB_VIA":
+            p = t.GetPosition(); r = mm(t.GetWidth()) / 2
+            obst.append((mm(p.x) - r, mm(p.y) - r, mm(p.x) + r, mm(p.y) + r, t.GetNetname(), True, True, ("rect",)))
+        else:
+            a1, a2 = t.GetStart(), t.GetEnd(); w = mm(t.GetWidth())
+            obst.append((min(mm(a1.x), mm(a2.x)) - w / 2, min(mm(a1.y), mm(a2.y)) - w / 2,
+                         max(mm(a1.x), mm(a2.x)) + w / 2, max(mm(a1.y), mm(a2.y)) + w / 2, t.GetNetname(),
+                         t.GetLayer() == pcbnew.F_Cu, False, ("seg", mm(a1.x), mm(a1.y), mm(a2.x), mm(a2.y), w)))
+            if t.GetNetname() == "GND":
+                pistes_gnd.append(t)
+    bord = board.GetBoardEdgesBoundingBox()
+    bx0, by0, bx1, by1 = mm(bord.GetLeft()), mm(bord.GetTop()), mm(bord.GetRight()), mm(bord.GetBottom())
+
+    def dist_seg(px, py, x1, y1, x2, y2):
+        dx, dy = x2 - x1, y2 - y1
+        l2 = dx * dx + dy * dy
+        u = 0 if l2 == 0 else max(0, min(1, ((px - x1) * dx + (py - y1) * dy) / l2))
+        return math.hypot(px - (x1 + u * dx), py - (y1 + u * dy))
+
+    def distance(o, px, py):
+        if o[7][0] == "seg":
+            _, x1, y1, x2, y2, w = o[7]
+            return dist_seg(px, py, x1, y1, x2, y2) - w / 2
+        dx = max(o[0] - px, 0, px - o[2]); dy = max(o[1] - py, 0, py - o[3])
+        return math.hypot(dx, dy)
+
+    ISOL = 0.55            # >= isolement le plus fort (classe « Relais » 0,5 mm) + marge
+
+    def via_libre(vx, vy):
+        if not (bx0 + 1.0 < vx < bx1 - 1.0 and by0 + 1.0 < vy < by1 - 1.0):
+            return False
+        for o in obst:
+            if o[0] - 2 > vx or o[2] + 2 < vx or o[1] - 2 > vy or o[3] + 2 < vy:
+                continue
+            d = distance(o, vx, vy) - 0.3            # rayon de la via
+            if o[4] != "GND" and d < ISOL:
+                return False
+            if o[6] and d < 0.35:                    # trou voisin (même GND) : écart trou-trou
+                return False
+        return True
+
+    def piste_libre(x1, y1, x2, y2):
+        for k in range(11):
+            px, py = x1 + (x2 - x1) * k / 10, y1 + (y2 - y1) * k / 10
+            for o in obst:
+                if not o[5] or o[4] == "GND":
+                    continue
+                if o[0] - 2 > px or o[2] + 2 < px or o[1] - 2 > py or o[3] + 2 < py:
+                    continue
+                if distance(o, px, py) - 0.2 < ISOL:   # demi-largeur de la piste 0,4 mm
+                    return False
+        return True
+
+    posees = echecs = 0
+    for fp in board.GetFootprints():
+        c = fp.GetPosition()
         for pad in fp.Pads():
             if pad.GetNetname() != "GND" or pad.GetAttribute() != pcbnew.PAD_ATTRIB_SMD or not pad.IsOnLayer(pcbnew.F_Cu):
                 continue
-            if any(pad.HitTest(t.GetStart()) or pad.HitTest(t.GetEnd()) for t in pistes):
+            if any(pad.HitTest(t.GetStart()) or pad.HitTest(t.GetEnd()) for t in pistes_gnd):
                 continue
             p = pad.GetPosition()
-            dx, dy = p.x - centre.x, p.y - centre.y
-            base = math.atan2(dy, dx) if (dx or dy) else -math.pi / 2
-            ang = base + math.radians(DIRECTIONS[tour % len(DIRECTIONS)])
-            taille = max(pcbnew.ToMM(pad.GetBoundingBox().GetWidth()), pcbnew.ToMM(pad.GetBoundingBox().GetHeight()))
-            dist = taille / 2 + 0.75 + 0.25 * (tour // len(DIRECTIONS))
-            v = pcbnew.VECTOR2I(p.x + pcbnew.FromMM(dist * math.cos(ang)), p.y + pcbnew.FromMM(dist * math.sin(ang)))
+            px, py = mm(p.x), mm(p.y)
+            base = math.atan2(py - mm(c.y), px - mm(c.x)) if (p.x != c.x or p.y != c.y) else -math.pi / 2
+            bb = pad.GetBoundingBox()
+            demi = max(mm(bb.GetWidth()), mm(bb.GetHeight())) / 2
+            trouve = None
+            for dist in (demi + 0.8, demi + 1.2, demi + 1.7, demi + 2.3):
+                for da in (0, 90, -90, 180, 45, -45, 135, -135):
+                    ang = base + math.radians(da)
+                    vx, vy = px + dist * math.cos(ang), py + dist * math.sin(ang)
+                    if via_libre(vx, vy) and piste_libre(px, py, vx, vy):
+                        trouve = (vx, vy)
+                        break
+                if trouve:
+                    break
+            if not trouve:
+                echecs += 1
+                continue
+            vx, vy = trouve
+            v = pcbnew.VECTOR2I(pcbnew.FromMM(vx), pcbnew.FromMM(vy))
             via = pcbnew.PCB_VIA(board)
             via.SetPosition(v); via.SetWidth(pcbnew.FromMM(0.6)); via.SetDrill(pcbnew.FromMM(0.3))
             via.SetViaType(pcbnew.VIATYPE_THROUGH); via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); via.SetNet(gnd)
@@ -215,29 +287,14 @@ def etape_vias_gnd(tour):
             t = pcbnew.PCB_TRACK(board)
             t.SetStart(p); t.SetEnd(v); t.SetWidth(pcbnew.FromMM(0.4)); t.SetLayer(pcbnew.F_Cu); t.SetNet(gnd)
             board.Add(t)
-            n += 1
+            obst.append((vx - 0.3, vy - 0.3, vx + 0.3, vy + 0.3, "GND", True, True, ("rect",)))
+            obst.append((min(px, vx) - 0.2, min(py, vy) - 0.2, max(px, vx) + 0.2, max(py, vy) + 0.2, "GND", True, False,
+                         ("seg", px, py, vx, vy, 0.4)))
+            posees += 1
     board.BuildConnectivity()
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     pcbnew.SaveBoard(PCB, board)
-    print(f"POSEES {n}")
-
-
-def vias_masse(tours=16):
-    """Raccorde les pastilles CMS de masse au plan : pose, contrôle DRC, retrait des vias
-    fautives, puis nouvel essai dans une autre direction."""
-    import tempfile
-    for tour in range(tours):
-        r = subprocess.run([sys.executable, __file__, "--poser-vias", str(tour)], check=True, capture_output=True, text=True)
-        n = int(re.search(r"POSEES (\d+)", r.stdout).group(1))
-        if n == 0:
-            break
-        for _ in range(3):
-            rap = os.path.join(tempfile.mkdtemp(), "drc.rpt")
-            subprocess.run([sys.executable, __file__, "--drc", rap], check=True, capture_output=True)
-            r2 = subprocess.run([sys.executable, __file__, "--retirer", rap], check=True, capture_output=True, text=True)
-            if "AUCUNE" in r2.stdout:
-                break
-        print(f"  tour {tour + 1} : {n} vias de masse essayées")
+    print(f"Vias de masse : {posees} posées, {echecs} pastilles sans emplacement sûr (à faire à la main)")
 
 
 def etape_drc(rap):

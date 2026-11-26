@@ -54,7 +54,7 @@ cmake -S . -B build && cmake --build build
 | Schéma de référence, brochage, nomenclature | Rédigés — brochage à valider dans STM32CubeMX |
 | Netlist (587 composants, 466 équipotentielles) | Générée et vérifiée automatiquement (brochages issus de bibliothèques KiCad) |
 | Schéma KiCad (9 feuillets) + PDF | Généré depuis la même description, relu et validé par KiCad (connectivité identique) |
-| Circuit imprimé KiCad | Composants placés, plans de masse, règles ; DRC sans erreur ; **routage à réaliser** (499 liaisons) |
+| Circuit imprimé KiCad | Placé, **routage partiel** (251 équipotentielles, vias de masse) ; DRC sans erreur ; alimentations et liaisons critiques à router à la main |
 | Noyau logiciel (zones, moteur, sorties, codes, journal, notifications, voix, commandes) | Écrit, **compilé et testé** (105 vérifications) |
 | Couche STM32 (pilotes, modem 4G, réseau, IHM) | Écrite, **non compilée ni essayée sur carte** (nécessite le projet CubeMX) |
 | Prototype matériel | À réaliser |
