@@ -11,3 +11,4 @@ __pycache__/
 fp-info-cache
 *-backups/
 *.lck
+hardware/kicad/logs/
