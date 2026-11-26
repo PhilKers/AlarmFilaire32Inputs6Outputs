@@ -5,3 +5,7 @@ voix/
 *.bin
 *.hex
 *.map
+__pycache__/
+*-bak
+*.kicad_prl
+fp-info-cache

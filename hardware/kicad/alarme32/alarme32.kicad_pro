@@ -1,0 +1,50 @@
+{
+  "meta": {
+    "filename": "alarme32.kicad_pro",
+    "version": 1
+  },
+  "schematic": {},
+  "boards": [],
+  "sheets": [
+    [
+      "e78f63f1-1eeb-55d3-940e-87b4ddc92262",
+      "Racine"
+    ],
+    [
+      "0d9fae77-d9c8-53c0-9b0b-2178be98864e",
+      "1 - Alimentation secourue et rails"
+    ],
+    [
+      "5542a6b1-9f43-52a4-9e7d-61e977a8e062",
+      "2 - Microcontrôleur STM32H743BIT6"
+    ],
+    [
+      "234c4d71-2591-54d2-91db-f356de639773",
+      "3 - SDRAM, Flash QSPI, microSD, EEPROM MAC"
+    ],
+    [
+      "1fe4720a-d2a9-508c-93bd-3de06ea83110",
+      "4 - Écran LVDS 1024x768 et tactile"
+    ],
+    [
+      "cbc1cd7b-3648-528d-a35f-6ffebef804a2",
+      "5 - 32 entrées de zones"
+    ],
+    [
+      "d63b556d-dadf-5137-8e13-316b0b624f0e",
+      "6 - Sorties relais, LED, autoprotection"
+    ],
+    [
+      "8d99c53f-fa4c-5794-bb6d-162949dde4e0",
+      "7 - Audio (MAX98357A)"
+    ],
+    [
+      "d2244019-2f48-5048-aa6d-4e41a01751b4",
+      "8 - Ethernet (LAN8742A)"
+    ],
+    [
+      "329ec64b-24e0-5d25-9a3f-9dd3485cc0fd",
+      "9 - Module 4G SIMCom A7670E"
+    ]
+  ]
+}

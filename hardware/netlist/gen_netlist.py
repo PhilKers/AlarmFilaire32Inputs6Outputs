@@ -81,6 +81,7 @@ class Carte:
             broches = OrderedDict((str(i + 1), str(i + 1)) for i in range(len(connexions)))
             connexions = OrderedDict((f"#{i + 1}", n) for i, n in enumerate(connexions))
         c = Composant(ref, device, valeur, empreinte, desc, broches)
+        c.base = base
         index = defaultdict(list)
         for num, nom in broches.items():
             index[norm(nom)].append(num)

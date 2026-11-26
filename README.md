@@ -21,6 +21,7 @@ Conception complète (matériel + logiciel) d'une centrale d'alarme :
 | [docs/04-nomenclature.md](docs/04-nomenclature.md) | Nomenclature (BOM) |
 | [docs/05-logiciel.md](docs/05-logiciel.md) | Architecture logicielle, machine d'états, tâches, commandes SMS/DTMF/API, construction |
 | [docs/06-mise-en-service.md](docs/06-mise-en-service.md) | Câblage des détecteurs, programmation, procès-verbal d'essais |
+| [hardware/kicad/LISEZMOI.md](hardware/kicad/LISEZMOI.md) | **Schéma KiCad** (9 feuillets) et sa version PDF |
 | [hardware/netlist/LISEZMOI.md](hardware/netlist/LISEZMOI.md) | **Netlist pour OrCAD** (Allegro/PCB Editor et OrCAD PCB II), nomenclature et empreintes générées |
 
 ## Arborescence
@@ -52,6 +53,7 @@ cmake -S . -B build && cmake --build build
 |---|---|
 | Schéma de référence, brochage, nomenclature | Rédigés — brochage à valider dans STM32CubeMX |
 | Netlist (587 composants, 466 équipotentielles) | Générée et vérifiée automatiquement (brochages issus de bibliothèques KiCad) |
+| Schéma KiCad (9 feuillets) + PDF | Généré depuis la même description, relu et validé par KiCad (connectivité identique) |
 | Noyau logiciel (zones, moteur, sorties, codes, journal, notifications, voix, commandes) | Écrit, **compilé et testé** (105 vérifications) |
 | Couche STM32 (pilotes, modem 4G, réseau, IHM) | Écrite, **non compilée ni essayée sur carte** (nécessite le projet CubeMX) |
 | Prototype matériel | À réaliser |
