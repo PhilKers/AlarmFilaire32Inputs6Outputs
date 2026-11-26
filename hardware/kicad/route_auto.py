@@ -11,6 +11,7 @@ restent en chevelu pour un routage manuel :
     vers le plan In1.Cu).
 
 Usage : /usr/bin/python3 route_auto.py <freerouting.jar> [passes]
+        /usr/bin/python3 route_auto.py --importer <session.ses>
 Le résultat est écrit dans alarme32/alarme32.kicad_pcb (zones re-remplies).
 """
 import os
@@ -45,6 +46,15 @@ def classe(net):
 
 
 def main():
+    if sys.argv[1] == "--drc":
+        etape_drc(sys.argv[2])
+        return
+    if sys.argv[1] == "--retirer":
+        etape_retirer(sys.argv[2])
+        return
+    if sys.argv[1] == "--importer":          # réimporte une session déjà calculée
+        importer(sys.argv[2])
+        return
     jar = sys.argv[1]
     passes = sys.argv[2] if len(sys.argv) > 2 else "40"
     tmp = tempfile.mkdtemp()
@@ -57,6 +67,9 @@ def main():
     pcbnew.ExportSpecctraDSN(board, dsn)
     txt = open(dsn, encoding="utf-8").read()
 
+    # In1.Cu reste un plan de masse plein : couche « power », interdite aux pistes
+    txt = re.sub(r"(\(layer In1\.Cu\s+\(type )signal\)", r"\1power)", txt)
+    assert "(type power)" in txt
     # B.Cu sert aux pistes : on retire son plan (le plan GND B.Cu est re-rempli après coup)
     txt = re.sub(r"\(plane GND \(polygon B\.Cu[^)]*\)\)\s*", "", txt)
 
@@ -96,17 +109,118 @@ def main():
         sys.exit("Freerouting n'a pas produit de session")
     print("Freerouting :", " ".join(r.stdout.split()[-30:]))
 
+    importer(ses)
+
+
+def importer(ses):
+    """Lit la session Specctra (.ses) et crée pistes et vias avec l'API pcbnew
+    (ImportSpecctraSES de KiCad 7 n'agit que dans l'éditeur graphique)."""
+    sys.path.insert(0, ICI)
+    from sexpr import parse, find, findall
+    racine = parse(open(ses, encoding="utf-8").read())[0]
+    routes = find(racine, "routes")
+    res = find(routes, "resolution")
+    echelle = {"um": 1e-3, "mm": 1.0, "mil": 0.0254}[str(res[1])] / float(res[2])   # unité -> mm
     board = pcbnew.LoadBoard(PCB)
     for t in list(board.GetTracks()):
         board.Remove(t)
-    if not pcbnew.ImportSpecctraSES(board, ses):
-        sys.exit("Import de la session refusé")
+    couches = {board.GetLayerName(l): l for l in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)}
+    nb_seg = nb_via = 0
+
+    def pt(x, y):
+        return pcbnew.VECTOR2I(pcbnew.FromMM(float(x) * echelle), pcbnew.FromMM(-float(y) * echelle))
+
+    for net in findall(find(routes, "network_out"), "net"):
+        ni = board.FindNet(str(net[1]))
+        for w in findall(net, "wire"):
+            chemin = find(w, "path")
+            couche, larg, xy = couches[str(chemin[1])], float(chemin[2]) * echelle, chemin[3:]
+            pts = [pt(xy[i], xy[i + 1]) for i in range(0, len(xy) - 1, 2)]
+            for p0, p1 in zip(pts, pts[1:]):
+                t = pcbnew.PCB_TRACK(board)
+                t.SetStart(p0); t.SetEnd(p1); t.SetWidth(pcbnew.FromMM(larg))
+                t.SetLayer(couche); t.SetNet(ni)
+                board.Add(t); nb_seg += 1
+        for v in findall(net, "via"):
+            m = re.search(r"_(\d+):(\d+)_um", str(v[1]))
+            d, perc = (int(m.group(1)) / 1000, int(m.group(2)) / 1000) if m else (0.6, 0.3)
+            via = pcbnew.PCB_VIA(board)
+            via.SetPosition(pt(v[2], v[3])); via.SetWidth(pcbnew.FromMM(d)); via.SetDrill(pcbnew.FromMM(perc))
+            via.SetViaType(pcbnew.VIATYPE_THROUGH); via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); via.SetNet(ni)
+            board.Add(via); nb_via += 1
     board.BuildConnectivity()
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     pcbnew.SaveBoard(PCB, board)
-    n_pistes = sum(1 for t in board.GetTracks() if t.GetClass() == "PCB_TRACK")
-    n_vias = sum(1 for t in board.GetTracks() if t.GetClass() == "PCB_VIA")
-    print(f"Carte enregistrée : {n_pistes} segments de piste, {n_vias} vias")
+    print(f"Session importée : {nb_seg} segments de piste, {nb_via} vias")
+    nettoyer()
+
+
+def nettoyer(max_iter=5):
+    """Supprime le routage fautif signalé par le DRC (isolement, trous) : l'équipotentielle
+    concernée est rendue au chevelu ; pour la masse, seules les vias fautives et leurs amorces
+    sont retirées. Répète jusqu'à disparition de ces violations.
+    Chaque étape tourne dans un processus séparé (l'API Python de KiCad 7 supporte mal
+    plusieurs chargements de carte dans un même processus)."""
+    import tempfile
+    rendues = set()
+    for _ in range(max_iter):
+        rap = os.path.join(tempfile.mkdtemp(), "drc.rpt")
+        subprocess.run([sys.executable, __file__, "--drc", rap], check=True, capture_output=True)
+        r = subprocess.run([sys.executable, __file__, "--retirer", rap], check=True, capture_output=True, text=True)
+        nets = [l for l in r.stdout.splitlines() if l.startswith("RETIRE ")]
+        if not nets and "AUCUNE" in r.stdout:
+            break
+        rendues |= {l[7:] for l in nets}
+    if rendues - {"GND"}:
+        print("Routage retiré (à faire à la main) :", ", ".join(sorted(rendues - {"GND"})))
+
+
+def etape_drc(rap):
+    pcbnew.WriteDRCReport(pcbnew.LoadBoard(PCB), rap, pcbnew.EDA_UNITS_MILLIMETRES, True)
+
+
+def etape_retirer(rap):
+    blocs = [x for x in re.split(r"\n(?=\[)", open(rap, encoding="utf-8").read())
+             if x.startswith(("[clearance", "[hole_clearance", "[tracks_crossing", "[shorting_items", "[track_dangling"))]
+    if not blocs:
+        print("AUCUNE")
+        return
+    nets_a_retirer, vias_gnd, pendantes = set(), [], []
+    for x in blocs:
+        if x.startswith("[track_dangling"):
+            m = re.search(r"@\(([-\d.]+) mm, ([-\d.]+) mm\): Track \[([^\]]+)\]", x)
+            if m:
+                pendantes.append((m.group(3), (float(m.group(1)), float(m.group(2)))))
+            continue
+        for m in re.finditer(r"@\(([-\d.]+) mm, ([-\d.]+) mm\): (Track|Via) \[([^\]]+)\]", x):
+            px, py, genre, net = float(m.group(1)), float(m.group(2)), m.group(3), m.group(4)
+            if net == "GND":
+                if genre == "Via":
+                    vias_gnd.append((px, py))
+            else:
+                nets_a_retirer.add(net)
+    board = pcbnew.LoadBoard(PCB)
+    proche = lambda p, q: abs(pcbnew.ToMM(p.x) - q[0]) < 0.02 and abs(pcbnew.ToMM(p.y) - q[1]) < 0.02
+    for t in list(board.GetTracks()):
+        n = t.GetNetname()
+        if t.GetClass() == "PCB_TRACK" and any(n == pn and (proche(t.GetStart(), q) or proche(t.GetEnd(), q))
+                                               for pn, q in pendantes):
+            board.Remove(t)
+            continue
+        if n in nets_a_retirer:
+            board.Remove(t)
+        elif n == "GND":
+            if t.GetClass() == "PCB_VIA" and any(proche(t.GetPosition(), v) for v in vias_gnd):
+                board.Remove(t)
+            elif t.GetClass() == "PCB_TRACK" and any(proche(t.GetStart(), v) or proche(t.GetEnd(), v) for v in vias_gnd):
+                board.Remove(t)
+    board.BuildConnectivity()
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    pcbnew.SaveBoard(PCB, board)
+    for n in sorted(nets_a_retirer):
+        print("RETIRE " + n)
+    if vias_gnd or pendantes:
+        print("RETIRE GND")
 
 
 if __name__ == "__main__":
