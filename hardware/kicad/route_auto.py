@@ -247,11 +247,12 @@ def etape_drc(rap):
 def etape_retirer(rap):
     blocs = [x for x in re.split(r"\n(?=\[)", open(rap, encoding="utf-8").read())
              if x.startswith(("[clearance", "[hole_clearance", "[tracks_crossing", "[shorting_items", "[track_dangling",
-                              "[hole_to_hole", "[copper_edge_clearance", "[solder_mask_bridge", "[via_dangling"))]
+                              "[hole_to_hole", "[copper_edge_clearance", "[solder_mask_bridge", "[via_dangling",
+                              "[holes_co_located", "[hole_near_hole"))]
     if not blocs:
         print("AUCUNE")
         return
-    nets_a_retirer, vias_gnd, pendantes = set(), [], []
+    nets_a_retirer, vias_gnd, pendantes, pistes_gnd = set(), [], [], []
     for x in blocs:
         if x.startswith("[track_dangling"):
             m = re.search(r"@\(([-\d.]+) mm, ([-\d.]+) mm\): Track \[([^\]]+)\]", x)
@@ -263,31 +264,38 @@ def etape_retirer(rap):
                 continue
             px, py, genre, net = float(m.group(1)), float(m.group(2)), m.group(3), m.group(4)
             if net == "GND":
-                if genre == "Via":
-                    vias_gnd.append((px, py))
+                (vias_gnd if genre == "Via" else pistes_gnd).append((px, py))
             else:
                 nets_a_retirer.add(net)
     board = pcbnew.LoadBoard(PCB)
     proche = lambda p, q: abs(pcbnew.ToMM(p.x) - q[0]) < 0.02 and abs(pcbnew.ToMM(p.y) - q[1]) < 0.02
-    for t in list(board.GetTracks()):
-        n = t.GetNetname()
-        if t.GetClass() == "PCB_TRACK" and any(n == pn and (proche(t.GetStart(), q) or proche(t.GetEnd(), q))
-                                               for pn, q in pendantes):
-            board.Remove(t)
-            continue
-        if n in nets_a_retirer:
-            board.Remove(t)
-        elif n == "GND":
-            if t.GetClass() == "PCB_VIA" and any(proche(t.GetPosition(), v) for v in vias_gnd):
+    for _passe in range(2):       # 2e passe : vias rattachées aux pistes retirées à la 1re
+        for t in list(board.GetTracks()):
+            n = t.GetNetname()
+            if t.GetClass() == "PCB_TRACK" and any(n == pn and (proche(t.GetStart(), q) or proche(t.GetEnd(), q))
+                                                   for pn, q in pendantes):
                 board.Remove(t)
-            elif t.GetClass() == "PCB_TRACK" and any(proche(t.GetStart(), v) or proche(t.GetEnd(), v) for v in vias_gnd):
+                continue
+            if n in nets_a_retirer:
                 board.Remove(t)
+            elif n == "GND":
+                if t.GetClass() == "PCB_TRACK" and any(t.HitTest(pcbnew.VECTOR2I(pcbnew.FromMM(q[0]), pcbnew.FromMM(q[1])),
+                                                                 pcbnew.FromMM(0.02)) for q in pistes_gnd):
+                    # piste de masse fautive : retirée, ainsi que la via posée à son extrémité
+                    vias_gnd += [(pcbnew.ToMM(t.GetEnd().x), pcbnew.ToMM(t.GetEnd().y)),
+                                 (pcbnew.ToMM(t.GetStart().x), pcbnew.ToMM(t.GetStart().y))]
+                    board.Remove(t)
+                    continue
+                if t.GetClass() == "PCB_VIA" and any(proche(t.GetPosition(), v) for v in vias_gnd):
+                    board.Remove(t)
+                elif t.GetClass() == "PCB_TRACK" and any(proche(t.GetStart(), v) or proche(t.GetEnd(), v) for v in vias_gnd):
+                    board.Remove(t)
     board.BuildConnectivity()
     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
     pcbnew.SaveBoard(PCB, board)
     for n in sorted(nets_a_retirer):
         print("RETIRE " + n)
-    if vias_gnd or pendantes:
+    if vias_gnd or pendantes or pistes_gnd:
         print("RETIRE GND")
 
 
