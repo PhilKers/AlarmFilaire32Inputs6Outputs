@@ -46,6 +46,12 @@ def classe(net):
 
 
 def main():
+    if sys.argv[1] == "--poser-vias":
+        etape_vias_gnd(int(sys.argv[2]))
+        return
+    if sys.argv[1] == "--vias-masse":
+        vias_masse()
+        return
     if sys.argv[1] == "--drc":
         etape_drc(sys.argv[2])
         return
@@ -153,6 +159,8 @@ def importer(ses):
     pcbnew.SaveBoard(PCB, board)
     print(f"Session importée : {nb_seg} segments de piste, {nb_via} vias")
     nettoyer()
+    print("Raccordement des pastilles de masse au plan :")
+    vias_masse()
 
 
 def nettoyer(max_iter=5):
@@ -175,13 +183,71 @@ def nettoyer(max_iter=5):
         print("Routage retiré (à faire à la main) :", ", ".join(sorted(rendues - {"GND"})))
 
 
+DIRECTIONS = [0, 90, -90, 180, 45, -45, 135, -135]
+
+
+def etape_vias_gnd(tour):
+    """Pose une via de masse (avec courte piste F.Cu) à côté de chaque pastille CMS GND
+    qui n'a encore ni piste ni via. La direction essayée change à chaque tour."""
+    import math
+    board = pcbnew.LoadBoard(PCB)
+    gnd = board.FindNet("GND")
+    pistes = [t for t in board.GetTracks() if t.GetNetname() == "GND"]
+    n = 0
+    for fp in board.GetFootprints():
+        centre = fp.GetPosition()
+        for pad in fp.Pads():
+            if pad.GetNetname() != "GND" or pad.GetAttribute() != pcbnew.PAD_ATTRIB_SMD or not pad.IsOnLayer(pcbnew.F_Cu):
+                continue
+            if any(pad.HitTest(t.GetStart()) or pad.HitTest(t.GetEnd()) for t in pistes):
+                continue
+            p = pad.GetPosition()
+            dx, dy = p.x - centre.x, p.y - centre.y
+            base = math.atan2(dy, dx) if (dx or dy) else -math.pi / 2
+            ang = base + math.radians(DIRECTIONS[tour % len(DIRECTIONS)])
+            taille = max(pcbnew.ToMM(pad.GetBoundingBox().GetWidth()), pcbnew.ToMM(pad.GetBoundingBox().GetHeight()))
+            dist = taille / 2 + 0.75 + 0.25 * (tour // len(DIRECTIONS))
+            v = pcbnew.VECTOR2I(p.x + pcbnew.FromMM(dist * math.cos(ang)), p.y + pcbnew.FromMM(dist * math.sin(ang)))
+            via = pcbnew.PCB_VIA(board)
+            via.SetPosition(v); via.SetWidth(pcbnew.FromMM(0.6)); via.SetDrill(pcbnew.FromMM(0.3))
+            via.SetViaType(pcbnew.VIATYPE_THROUGH); via.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); via.SetNet(gnd)
+            board.Add(via)
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(p); t.SetEnd(v); t.SetWidth(pcbnew.FromMM(0.4)); t.SetLayer(pcbnew.F_Cu); t.SetNet(gnd)
+            board.Add(t)
+            n += 1
+    board.BuildConnectivity()
+    pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    pcbnew.SaveBoard(PCB, board)
+    print(f"POSEES {n}")
+
+
+def vias_masse(tours=16):
+    """Raccorde les pastilles CMS de masse au plan : pose, contrôle DRC, retrait des vias
+    fautives, puis nouvel essai dans une autre direction."""
+    import tempfile
+    for tour in range(tours):
+        r = subprocess.run([sys.executable, __file__, "--poser-vias", str(tour)], check=True, capture_output=True, text=True)
+        n = int(re.search(r"POSEES (\d+)", r.stdout).group(1))
+        if n == 0:
+            break
+        for _ in range(3):
+            rap = os.path.join(tempfile.mkdtemp(), "drc.rpt")
+            subprocess.run([sys.executable, __file__, "--drc", rap], check=True, capture_output=True)
+            r2 = subprocess.run([sys.executable, __file__, "--retirer", rap], check=True, capture_output=True, text=True)
+            if "AUCUNE" in r2.stdout:
+                break
+        print(f"  tour {tour + 1} : {n} vias de masse essayées")
+
+
 def etape_drc(rap):
     pcbnew.WriteDRCReport(pcbnew.LoadBoard(PCB), rap, pcbnew.EDA_UNITS_MILLIMETRES, True)
 
 
 def etape_retirer(rap):
     blocs = [x for x in re.split(r"\n(?=\[)", open(rap, encoding="utf-8").read())
-             if x.startswith(("[clearance", "[hole_clearance", "[tracks_crossing", "[shorting_items", "[track_dangling"))]
+             if x.startswith(("[clearance", "[hole_clearance", "[tracks_crossing", "[shorting_items", "[track_dangling",
+                              "[hole_to_hole", "[copper_edge_clearance", "[solder_mask_bridge", "[via_dangling"))]
     if not blocs:
         print("AUCUNE")
         return
@@ -192,7 +258,9 @@ def etape_retirer(rap):
             if m:
                 pendantes.append((m.group(3), (float(m.group(1)), float(m.group(2)))))
             continue
-        for m in re.finditer(r"@\(([-\d.]+) mm, ([-\d.]+) mm\): (Track|Via) \[([^\]]+)\]", x):
+        for m in re.finditer(r"@\(([-\d.]+) mm, ([-\d.]+) mm\): (Track|Via|PTH pad \S+|Pad \S+|SMD pad \S+)? ?\[([^\]]+)\]", x):
+            if not m.group(3) or not m.group(3).startswith(("Track", "Via")):
+                continue
             px, py, genre, net = float(m.group(1)), float(m.group(2)), m.group(3), m.group(4)
             if net == "GND":
                 if genre == "Via":
