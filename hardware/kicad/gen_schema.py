@@ -24,6 +24,7 @@ from collections import defaultdict
 ICI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ICI, "..", "netlist"))
 import gen_netlist  # noqa: E402  (construit la carte B à l'import)
+from empreintes import kicad as empreinte_kicad  # noqa: E402
 
 B = gen_netlist.B
 if B.erreurs:
@@ -338,7 +339,7 @@ def feuille(idx, nom_fichier, titre, notes, comps, uuid_racine, uuid_feuille):
         L.append(f"    (uuid {ident})")
         L.append(f'    (property "Reference" {q(c.ref)} (at {f(pr[0])} {f(pr[1])} {b.rot}) (effects (font (size 1.27 1.27)){ja}))')
         L.append(f'    (property "Value" {q(c.valeur)} (at {f(pv[0])} {f(pv[1])} {b.rot}) (effects (font (size 1.27 1.27)){ja}))')
-        L.append(f'    (property "Footprint" "" (at {f(X)} {f(Y)} 0) (effects (font (size 1.27 1.27)) hide))')
+        L.append(f'    (property "Footprint" {q(empreinte_kicad(c.empreinte))} (at {f(X)} {f(Y)} 0) (effects (font (size 1.27 1.27)) hide))')
         L.append(f'    (property "Datasheet" "" (at {f(X)} {f(Y)} 0) (effects (font (size 1.27 1.27)) hide))')
         L.append(f'    (property "Empreinte" {q(c.empreinte)} (at {f(X)} {f(Y)} 0) (effects (font (size 1.27 1.27)) hide))')
         L.append(f'    (property "Description" {q(c.desc)} (at {f(X)} {f(Y)} 0) (effects (font (size 1.27 1.27)) hide))')
@@ -398,9 +399,14 @@ def main():
     racine.append('  (sheet_instances (path "/" (page "1")))')
     racine.append(")")
     open(os.path.join(SORTIE, f"{PROJET}.kicad_sch"), "w", encoding="utf-8").write("\n".join(racine) + "\n")
-    json.dump({"meta": {"filename": f"{PROJET}.kicad_pro", "version": 1}, "schematic": {}, "boards": [],
-               "sheets": [[u_racine, "Racine"]] + [[uid("feuillet", fi), t] for fi, t, _ in FEUILLETS]},
-              open(os.path.join(SORTIE, f"{PROJET}.kicad_pro"), "w"), indent=2, ensure_ascii=False)
+    # Fichier projet : on conserve les réglages existants (règles du PCB écrites par gen_pcb.py)
+    pro = os.path.join(SORTIE, f"{PROJET}.kicad_pro")
+    d = json.load(open(pro, encoding="utf-8")) if os.path.exists(pro) else {}
+    d.update({"meta": {"filename": f"{PROJET}.kicad_pro", "version": 1},
+              "sheets": [[u_racine, "Racine"]] + [[uid("feuillet", fi), t] for fi, t, _ in FEUILLETS]})
+    d.setdefault("schematic", {})
+    d.setdefault("boards", [])
+    json.dump(d, open(pro, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     print(f"Schéma écrit dans {SORTIE}")
 
 

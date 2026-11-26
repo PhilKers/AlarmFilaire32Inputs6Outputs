@@ -135,7 +135,7 @@ Plan mémoire : 0xC000 0000 tampon d'image 0 (1,5 Mo), 0xC018 0000 tampon 1, res
 **Flash QSPI U13 W25Q128JVSIQ** (16 Mo) : CLK PB2, /CS PB6 (10 kΩ vers 3V3), IO0 PF8, IO1 PF9, IO2 PF7, IO3 PF6 ; 100 nF.
 Contient : configuration (2 copies, fin de mémoire), polices et images de l'IHM.
 
-**microSD J6** (Molex 503182-1852) : SDMMC1 — D0 PC8, D1 PC9, D2 PC10, D3 PC11, CK PC12, CMD PD2 ; tirages 47 kΩ sur CMD et D0…D3 ; détection carte → PD11 (10 kΩ vers 3V3) ; 10 µF + 100 nF. Contient les fichiers vocaux `/VOIX/` et le journal `JOURNAL.CSV`.
+**microSD J6** (Hirose DM3AT-SF-PEJM5, détection par contact DET_A/DET_B) : SDMMC1 — D0 PC8, D1 PC9, D2 PC10, D3 PC11, CK PC12, CMD PD2 ; tirages 47 kΩ sur CMD et D0…D3 ; détection carte → PD11 (10 kΩ vers 3V3) ; 10 µF + 100 nF. Contient les fichiers vocaux `/VOIX/` et le journal `JOURNAL.CSV`.
 
 **EEPROM U14 24AA025E48** (I2C4, 0x50) : adresse MAC unique EUI-48 pour l'Ethernet.
 
@@ -223,7 +223,7 @@ Schéma d'**une** zone (identique pour les 32) :
 
 Cycle d'acquisition : 16 adresses × (15 µs d'établissement + 2 conversions) ≈ 0,4 ms, répété toutes les 10 ms ; temps de réponse logiciel configurable par zone (300 ms par défaut, 100 ms pour le sabotage).
 
-Bornier : 32 bornes de zone + 16 bornes 0 V (une pour deux zones) + 4 bornes AUX 12 V / 0 V. Borniers débrochables pas de 5 mm.
+Bornier : 32 bornes de zone + 16 bornes 0 V (une pour deux zones) + 4 bornes AUX 12 V / 0 V. Borniers à vis Phoenix MKDS 1,5 pas de 5 mm.
 
 ---
 
@@ -343,7 +343,7 @@ Format des fichiers : WAV PCM 16 bits mono 16 kHz. Le logiciel duplique l'échan
  PH6 ──4,7 kΩ──► base Q4 MMBT3904 (47 kΩ B-E) ; collecteur ──► PWRKEY (niveau haut MCU = PWRKEY à 0)
  PH7 ──4,7 kΩ──► base Q5 MMBT3904             ; collecteur ──► RESET                 
                                                                                    
- J11 nano-SIM : SIM_VDD, SIM_DATA, SIM_CLK, SIM_RST — 22 Ω série + 33 pF vers GND,    
+ J11 micro-SIM : SIM_VDD, SIM_DATA, SIM_CLK, SIM_RST — 22 Ω série + 33 pF vers GND,    
               U27 ESDA6V1W5 au plus près du support                                   
  J12 U.FL MAIN_ANT ── réseau en π (0 Ω + 2 × NC) ── piste 50 Ω coplanaire             
  TP USB_VBUS / USB_DP / USB_DM du module sur pastilles de test (mise à jour firmware)
@@ -369,5 +369,5 @@ Antenne LTE externe au coffret métallique (passe-cloison SMA). Le régulateur 3
 | J7, J8 | Dalle LVDS, tactile | selon dalle |
 | J10 | Ethernet RJ45 | — |
 | J4, J5 | SWD, USB-C maintenance | — |
-| J6, J11 | microSD, nano-SIM | — |
+| J6, J11 | microSD, micro-SIM | — |
 | J12 | Antenne 4G principale (l'A7670E n'a pas d'entrée de diversité) | U.FL |

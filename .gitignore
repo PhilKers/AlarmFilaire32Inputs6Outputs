@@ -9,3 +9,5 @@ __pycache__/
 *-bak
 *.kicad_prl
 fp-info-cache
+*-backups/
+*.lck

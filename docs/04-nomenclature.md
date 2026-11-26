@@ -60,12 +60,12 @@ Les composants passifs génériques (résistances 0603 1 %, condensateurs X7R/X5
 | X3 | ABM8-25.000MHZ-B2-T | Quartz 25 MHz (PHY) | 1 |
 | BT1 | Support CR2032 + pile | Sauvegarde RTC | 1 |
 | J10 | HanRun HR911105A | RJ45 avec transformateur et LED | 1 |
-| J6 | Molex 503182-1852 | Support microSD | 1 |
-| J11 | Support nano-SIM à charnière (ex. Amphenol C707 10M006 512 2) | | 1 |
+| J6 | Hirose DM3AT-SF-PEJM5 | Support microSD à poussoir avec détection | 1 |
+| J11 | JAE SF53S006VCBR2000 | Support micro-SIM | 1 |
 | J12 | U.FL (Hirose U.FL-R-SMT-1) + câble vers SMA | Antenne LTE | 1 |
 | J5 | USB-C 16 broches | Maintenance | 1 |
 | J4 | Embase 2 × 5 1,27 mm | SWD | 1 |
-| J14…J28 | Borniers débrochables pas 5 mm (Phoenix MSTB / équivalent) | Zones, sorties, alim | ~ 110 points |
+| J14…J28 | Borniers à vis Phoenix MKDS 1,5 pas 5,08 mm | Zones, sorties, alim | ~ 110 points |
 | SW1 | Bouton tactile | Reset | 1 |
 
 ## Sous-ensembles externes

@@ -1,5 +1,5 @@
 (Device file for SIM - genere par gen_netlist.py)
-PACKAGE SIM_NANO_HINGED
+PACKAGE SIM_MICRO_JAE
 CLASS IO
 PINCOUNT 6
 END

@@ -5636,7 +5636,7 @@
 "length": 5.08,
 "hide": false,
 "name": "SHIELD",
-"number": "SH"
+"number": "S1"
 }
 ]
 }
@@ -5910,7 +5910,7 @@
 },
 "ref": "J"
 },
-"MICROSD_DET": {
+"MICROSD_DM3AT": {
 "pin_names_offset": 0.508,
 "pin_names_hide": false,
 "pin_numbers_hide": false,
@@ -6029,8 +6029,19 @@
 "angle": 0,
 "length": 3.81,
 "hide": false,
-"name": "DET",
+"name": "DET_B",
 "number": "9"
+},
+{
+"type": "passive",
+"style": "line",
+"x": -22.86,
+"y": -10.16,
+"angle": 0,
+"length": 3.81,
+"hide": false,
+"name": "DET_A",
+"number": "10"
 },
 {
 "type": "passive",
@@ -6041,7 +6052,7 @@
 "length": 3.81,
 "hide": false,
 "name": "SHIELD",
-"number": "SH"
+"number": "11"
 }
 ]
 }

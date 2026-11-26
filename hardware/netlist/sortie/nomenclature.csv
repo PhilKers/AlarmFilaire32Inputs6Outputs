@@ -61,7 +61,7 @@
 1;W25Q128JVSIQ;SOIC8_208MIL;Flash QSPI 16 Mo;U202
 1;20k;R0603;Fréquence de découpage ~ 400 kHz (à confirmer);R18
 1;5A;FUSE_LF154;Fusible 5 A rapide Littelfuse 154 (OMNI-BLOK);F1
-1;HAUT_PARLEUR;TB_2P_3MM81;Haut-parleur 4-8 Ω 3 W;J601
+1;HAUT_PARLEUR;TB_2P_5MM08;Haut-parleur 4-8 Ω 3 W;J601
 2;10uH;L_XAL6060;Inductance 10 µH 6 A blindée (XAL6060-103);L1 L2
 1;2.2uH;L_XFL4020;Inductance 2,2 µH 3,5 A (XFL4020-222);L3
 1;6.8uH;L_XAL6060;Inductance 6,8 µH 6 A (à confirmer WEBENCH);L4
@@ -174,8 +174,8 @@
 1;SORTIE_5;TB_4P_5MM08;Sortie 5 : 1 COM, 2 NO, 3 NF, 4 0 V;J505
 1;SORTIE_6;TB_4P_5MM08;Sortie 6 : 1 COM, 2 NO, 3 NF, 4 0 V;J506
 1;TPS3823-33DBVR;SOT23_5;Superviseur + chien de garde (1,6 s);U102
-1;MICROSD;MICROSD_MOLEX_503182;Support microSD à poussoir avec détection;J201
-1;NANO_SIM;SIM_NANO_HINGED;Support nano-SIM à charnière;J801
+1;MICRO_SIM;SIM_MICRO_JAE;Support micro-SIM (JAE SF53S006);J801
+1;MICROSD;MICROSD_HIROSE_DM3AT;Support microSD à poussoir avec détection (Hirose DM3AT);J201
 1;CR2032;BAT_CR2032_SMD;Support pile CR2032 (1 = +, 2 = -);BT101
 1;10k;R0603;Sélection 8 bits (selon dalle);R302
 1;93.1k;R0603;Sélection de mode LM5176 (voir datasheet);R17

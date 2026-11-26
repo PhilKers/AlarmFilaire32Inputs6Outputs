@@ -53,7 +53,7 @@ Le circuit est décrit dans `gen_netlist.py`, feuillet par feuillet, avec les **
 1. **SN75LVDS83B** : contrôler le brochage TSSOP-56 sur la datasheet TI (une seule source).
 2. **Relais G5LE-1 / G5V-1** : les fonctions COM / repos / travail / bobine sont déduites du dessin du symbole KiCad ; les confirmer sur la datasheet Omron.
 3. **Connecteur de dalle LVDS** (20 broches) : brochage **générique**, à adapter à la dalle retenue ; vérifier aussi VESA/JEIDA.
-4. **Détection microSD** : la numérotation de la broche de détection (`9`) dépend du support choisi.
+4. **Support microSD** : Hirose DM3AT (détection entre DET_A et DET_B, blindage = pastille 11) ; à respecter si vous changez de support.
 5. **Régulateur buck-boost LM5176** : la topologie est complète mais les valeurs (fréquence, compensation, résistances de mesure, MOSFET, inductance) sont à recalculer avec **TI WEBENCH**.
 6. **Module A7670E** : 124 broches du symbole ; l'empreinte LCC+LGA du fabricant peut comporter des pastilles de masse supplémentaires (toutes à relier à GND).
 

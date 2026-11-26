@@ -407,9 +407,9 @@ B.ajoute("U", "W25Q128JVS", "W25Q128JVSIQ", "SOIC8_208MIL", "Flash QSPI 16 Mo",
           "CLK": "QSPI_CLK", "HOLD/RESET/IO3": "QSPI_IO3", "VCC": "P3V3"}, base="W25Q128JVS")
 B.R("10k", "QSPI_NCS", "P3V3"); B.decouple("P3V3")
 
-B.ajoute("J", "MICROSD", "MICROSD", "MICROSD_MOLEX_503182", "Support microSD à poussoir avec détection",
+B.ajoute("J", "MICROSD", "MICROSD", "MICROSD_HIROSE_DM3AT", "Support microSD à poussoir avec détection (Hirose DM3AT)",
          {"DAT2": "SD_D2", "DAT3/CD": "SD_D3", "CMD": "SD_CMD", "VDD": "P3V3", "CLK": "SD_CK", "VSS": "GND",
-          "DAT0": "SD_D0", "DAT1": "SD_D1", "DET": "SD_DETECT", "SHIELD": "GND"}, base="MICROSD_DET")
+          "DAT0": "SD_D0", "DAT1": "SD_D1", "DET_B": "SD_DETECT", "DET_A": "GND", "SHIELD": "GND"}, base="MICROSD_DM3AT")
 for s in ("SD_D0", "SD_D1", "SD_D2", "SD_D3", "SD_CMD"):
     B.R("47k", s, "P3V3")
 B.R("10k", "SD_DETECT", "P3V3"); B.C("10uF/10V", "P3V3", "GND", "C0805"); B.decouple("P3V3")
@@ -541,7 +541,7 @@ B.R("220k", "AMP_SD", "AMP_SD_MODE", desc="≈ 1 V avec la résistance interne :
 B.C("10uF/10V", "P5V", "GND", "C0805"); B.decouple("P5V"); B.CP("220uF/10V", "P5V", "GND", "CPOL_D6_SMD", "Électrolytique 220 µF 10 V")
 B.FB("SPK_P_AMP", "SPK_P"); B.FB("SPK_N_AMP", "SPK_N")
 B.C("1nF", "SPK_P", "GND"); B.C("1nF", "SPK_N", "GND")
-B.connecteur("J", "TB_2P_3MM81", "Haut-parleur 4-8 Ω 3 W", ["SPK_P", "SPK_N"], "HAUT_PARLEUR")
+B.connecteur("J", "TB_2P_5MM08", "Haut-parleur 4-8 Ω 3 W", ["SPK_P", "SPK_N"], "HAUT_PARLEUR")
 
 # ---------------------------------------------------------------------------
 # Feuillet 8 — Ethernet
@@ -613,7 +613,7 @@ for ctl, sig in (("MDM_PWRKEY_CTL", "MDM_PWRKEY"), ("MDM_RESET_CTL", "MDM_RESET"
     B.ajoute("Q", "MMBT3904", "MMBT3904", "SOT23", f"NPN commande {sig}", {"B": b, "E": "GND", "C": sig}, base="MMBT3904")
 B.R("100k", "MDM_PWRKEY_CTL", "GND"); B.R("100k", "MDM_RESET_CTL", "GND")
 # Carte SIM
-B.ajoute("J", "SIM", "NANO_SIM", "SIM_NANO_HINGED", "Support nano-SIM à charnière",
+B.ajoute("J", "SIM", "MICRO_SIM", "SIM_MICRO_JAE", "Support micro-SIM (JAE SF53S006)",
          {"VCC": "SIM_VDD", "RST": "SIM_RST", "CLK": "SIM_CLK", "GND": "GND", "I/O": "SIM_DATA"},
          base="SIM_CARD", nc=["VPP"])
 for s in ("SIM_RST", "SIM_CLK", "SIM_DATA"):

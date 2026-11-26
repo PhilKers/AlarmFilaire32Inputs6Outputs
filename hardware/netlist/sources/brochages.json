@@ -440,8 +440,10 @@
    "8": "VDD",
    "9": "OUTP"
   },
-  "MICROSD_DET": {
+  "MICROSD_DM3AT": {
    "1": "DAT2",
+   "10": "DET_A",
+   "11": "SHIELD",
    "2": "DAT3/CD",
    "3": "CMD",
    "4": "VDD",
@@ -449,8 +451,7 @@
    "6": "VSS",
    "7": "DAT0",
    "8": "DAT1",
-   "9": "DET",
-   "SH": "SHIELD"
+   "9": "DET_B"
   },
   "MMBT3904": {
    "1": "B",
@@ -867,7 +868,7 @@
    "B7": "D-",
    "B8": "SBU2",
    "B9": "VBUS",
-   "SH": "SHIELD"
+   "S1": "SHIELD"
   },
   "W25Q128JVS": {
    "1": "~{CS}",
@@ -900,9 +901,9 @@
   "LM74700": "KiCad kicad-symbols",
   "LMR33630ADDA": "KiCad kicad-symbols (LMR33630ADDA hérite de LMR33640ADDA)",
   "MAX98357A": "KiCad kicad-symbols",
-  "MICROSD_DET": "KiCad kicad-symbols",
+  "MICROSD_DM3AT": "KiCad kicad-symbols (Micro_SD_Card_Det_Hirose_DM3AT / Det2) ; blindage renuméroté SH -> 11 comme l'empreinte DM3AT",
   "MMBT3904": "KiCad kicad-symbols (hérite de Q_NPN_BEC)",
-  "SIM_CARD": "KiCad kicad-symbols",
+  "SIM_CARD": "KiCad kicad-symbols (SIM_Card, compatible empreinte micro-SIM JAE SF53S006)",
   "SN75LVDS83B": "github.com/exentio/koyomi-lvds-hat",
   "STM32H743BITx": "KiCad kicad-symbols",
   "SWD_10": "KiCad kicad-symbols",
@@ -914,7 +915,7 @@
   "TPS62130": "KiCad kicad-symbols",
   "TXS0108EPW": "KiCad kicad-symbols",
   "USBLC6-2SC6": "KiCad kicad-symbols (hérite de USBLC6-2P6)",
-  "USB_C_16P": "KiCad kicad-symbols",
+  "USB_C_16P": "KiCad kicad-symbols ; blindage renuméroté SH -> S1 comme l'empreinte HRO TYPE-C-31-M-12",
   "W25Q128JVS": "KiCad kicad-symbols (hérite de W25Q32JVSS)"
  }
 }

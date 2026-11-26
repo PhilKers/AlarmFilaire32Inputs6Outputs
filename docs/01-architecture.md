@@ -8,7 +8,7 @@
 | 6 sorties relais, mode configurable par logiciel | Par sortie : 1 relais de puissance + 2 relais de sélection → **contact sec**, **+12 V** ou **+5 V** sur le commun, protégés par PTC |
 | Annonce vocale | Fichiers WAV sur microSD → SAI (I2S) → ampli classe D MAX98357A 3 W → haut-parleur |
 | Ethernet | PHY LAN8742A (RMII) + RJ45 à transformateur intégré, pile lwIP, API HTTP/JSON, heure SNTP |
-| Interface téléphonique 4G | Module SIMCom A7670E (LTE Cat-1 + repli 2G, Europe) + support nano-SIM : SMS, appels vocaux avec messages, commandes DTMF |
+| Interface téléphonique 4G | Module SIMCom A7670E (LTE Cat-1 + repli 2G, Europe) + support micro-SIM : SMS, appels vocaux avec messages, commandes DTMF |
 | Alimentation secourue | Bloc certifié Mean Well PSC-100A (230 V → 13,8 V, chargeur batterie intégré) + batterie plomb 12 V 7 à 18 Ah ; surveillance INA226 |
 | Écran tactile 1024×768 | Dalle 10,4" XGA LVDS + dalle tactile capacitive (contrôleur GT911/GT928) ; LTDC → SN75LVDS83B ; LVGL v9 |
 | MCU STM32 | **STM32H743BIT6** (Cortex-M7 480 MHz, 2 Mo Flash, 1 Mo RAM, LQFP208) + SDRAM 32 Mo + Flash QSPI 16 Mo |
@@ -44,7 +44,7 @@ flowchart LR
     CORE -->|SDMMC1| SD[microSD<br/>voix + journal]
     CORE -->|SAI1 I2S| AMP[MAX98357A] --> HP[Haut-parleur 4 Ω]
     CORE -->|RMII| PHY[LAN8742A] --> RJ45[RJ45]
-    CORE -->|USART3 + RTS/CTS| LS[TXS0108E<br/>3,3 ↔ 1,8 V] --> GSM[A7670E 4G] --> SIM[nano-SIM]
+    CORE -->|USART3 + RTS/CTS| LS[TXS0108E<br/>3,3 ↔ 1,8 V] --> GSM[A7670E 4G] --> SIM[micro-SIM]
     B38 --> GSM
     CORE -->|I2C4| INA
     CORE --- WDG[TPS3823<br/>chien de garde]
@@ -87,8 +87,8 @@ Exemple : (0,46 A × 36 h + 1,7 A × 0,25 h) / 0,8 ≈ **21 Ah** → batterie 12
 
 ## 1.5 Organisation de la carte
 
-Carte 4 couches recommandée (signal / masse / alimentations / signal), format indicatif 220 × 160 mm, fixée au fond d'un coffret métallique avec autoprotection à l'ouverture. Zones :
-1. **Bord inférieur** : borniers à vis débrochables (32 zones + 32 communs 0 V regroupés, AUX 12 V, 6 sorties × 4 bornes, haut-parleur, alimentation, batterie).
+Carte 4 couches recommandée (signal / masse / alimentations / signal), format 300 × 210 mm (voir hardware/kicad/alarme32/alarme32.kicad_pcb), fixée au fond d'un coffret métallique avec autoprotection à l'ouverture. Zones :
+1. **Bord inférieur** : borniers à vis (Phoenix MKDS 1,5, pas 5,08 mm) (32 zones + 32 communs 0 V regroupés, AUX 12 V, 6 sorties × 4 bornes, haut-parleur, alimentation, batterie).
 2. **Centre** : MCU, SDRAM au plus près (pistes FMC appairées en longueur, ± 5 mm), QSPI.
 3. **Bord supérieur** : connecteur LVDS de la dalle, FPC tactile, RJ45, microSD, USB-C (maintenance).
 4. **Coin isolé** : module 4G avec plan de masse continu, pistes d'antenne 50 Ω coplanaires, connecteurs U.FL vers antennes externes au coffret.

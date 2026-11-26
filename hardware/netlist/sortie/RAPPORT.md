@@ -1,7 +1,7 @@
 # Rapport de génération de la netlist
 
 - Composants : **587** (BT 1, C 170, D 96, F 16, FB 3, J 31, JP 1, K 18, L 4, Q 9, R 192, SW 1, TP 14, U 28, X 3)
-- Broches : **2165** dont 2062 connectées et 103 déclarées non connectées
+- Broches : **2166** dont 2063 connectées et 103 déclarées non connectées
 - Équipotentielles : **466**
 - Contrôles : noms de broches vérifiés, aucune broche oubliée, aucune double affectation
 
@@ -31,9 +31,9 @@ Normal pour les points de test ; à examiner sinon.
 - **LM74700** : KiCad kicad-symbols
 - **LMR33630ADDA** : KiCad kicad-symbols (LMR33630ADDA hérite de LMR33640ADDA)
 - **MAX98357A** : KiCad kicad-symbols
-- **MICROSD_DET** : KiCad kicad-symbols
+- **MICROSD_DM3AT** : KiCad kicad-symbols (Micro_SD_Card_Det_Hirose_DM3AT / Det2) ; blindage renuméroté SH -> 11 comme l'empreinte DM3AT
 - **MMBT3904** : KiCad kicad-symbols (hérite de Q_NPN_BEC)
-- **SIM_CARD** : KiCad kicad-symbols
+- **SIM_CARD** : KiCad kicad-symbols (SIM_Card, compatible empreinte micro-SIM JAE SF53S006)
 - **SN75LVDS83B** : github.com/exentio/koyomi-lvds-hat
 - **STM32H743BITx** : KiCad kicad-symbols
 - **SWD_10** : KiCad kicad-symbols
@@ -45,5 +45,5 @@ Normal pour les points de test ; à examiner sinon.
 - **TPS62130** : KiCad kicad-symbols
 - **TXS0108EPW** : KiCad kicad-symbols
 - **USBLC6-2SC6** : KiCad kicad-symbols (hérite de USBLC6-2P6)
-- **USB_C_16P** : KiCad kicad-symbols
+- **USB_C_16P** : KiCad kicad-symbols ; blindage renuméroté SH -> S1 comme l'empreinte HRO TYPE-C-31-M-12
 - **W25Q128JVS** : KiCad kicad-symbols (hérite de W25Q32JVSS)

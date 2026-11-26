@@ -34,7 +34,7 @@ SOURCES = {   # nom dans le schéma : (fichier, symbole)
     "74AHCT125": ("74xx/74LS125", None),
     "USB_C_16P": ("Connector/USB_C_Receptacle_USB2.0_16P", None),
     "HR911105A": ("Connector/RJ45_Hanrun_HR911105A_Horizontal", None),
-    "MICROSD_DET": ("Connector/Micro_SD_Card_Det1", None),
+    "MICROSD_DM3AT": ("Connector/Micro_SD_Card_Det2", None),
     "SIM_CARD": ("Connector/SIM_Card", None),
     "SWD_10": ("Connector/Conn_ARM_JTAG_SWD_10", None),
     "G5LE-1": ("Relay/G5LE-1", None),
@@ -133,6 +133,12 @@ def extraire(sym):
     return out
 
 res = {n: extraire(charger(c, s)) for n, (c, s) in SOURCES.items()}
+# Renumérotation pour correspondre aux empreintes KiCad 7 (pastilles de blindage)
+RENUM = {"USB_C_16P": {"SH": "S1"}, "MICROSD_DM3AT": {"SH": "11"}}
+for n, table in RENUM.items():
+    for u in res[n]["units"].values():
+        for p in u["pins"]:
+            p["number"] = table.get(p["number"], p["number"])
 json.dump(res, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sources", "symboles.json"), "w"),
           ensure_ascii=False, indent=0)
 for n, s in res.items():
